@@ -9,7 +9,7 @@
   <link rel="manifest" href="manifest.json">
   <link rel="icon" type="image/png" sizes="512x512" href="icon512.png">
   <link rel="apple-touch-icon" sizes="512x512" href="icon512.png">
-  <meta name="theme-color" content="#b80000">
+  <meta name="theme-color" content="#fbf9f9">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Woody">
@@ -24,7 +24,7 @@
     .font-code { font-family: 'Roboto Flex', monospace; }
   </style>
 </head>
-<body class="bg-[#fbf9f9] text-[#1b1c1c] flex flex-col min-h-screen select-none">
+<body class="bg-[#fbf9f9] text-[#1b1c1c] flex flex-col min-h-screen select-none relative">
 
   <!-- ==================== GLOBAL APP BAR ==================== -->
   <header class="fixed top-0 w-full z-40 bg-[#fbf9f9]/90 backdrop-blur-xl border-b border-[#e9e8e7]">
@@ -62,14 +62,12 @@
     <!-- VIEW 1A: GRID VIEW -->
     <section id="viewGrid" class="block pb-12 px-4 max-w-md mx-auto">
       <div class="flex flex-col w-full gap-4">
-        <!-- Telemetry Pill Bar -->
         <div class="flex items-center justify-center gap-2 w-full select-none" id="telemetryBar">
           <div class="flex-1 py-1.5 rounded-lg bg-[#fbc02d] text-[#1a1a1a] font-bold text-xs text-center shadow-sm" id="countOut">Out: 0</div>
           <div class="flex-1 py-1.5 rounded-lg bg-[#2e7d32] text-white font-bold text-xs text-center shadow-sm" id="countOffice">Office: 0</div>
           <div class="flex-1 py-1.5 rounded-lg bg-[#dbdad9] text-[#1b1c1c] font-bold text-xs text-center shadow-sm" id="countInactive">Inactive: 0</div>
         </div>
 
-        <!-- 5-Column Pegboard Matrix -->
         <div class="bg-[#f5f3f3] p-4 rounded-2xl shadow-sm border border-[#e9e8e7]">
           <div class="grid grid-cols-5 gap-2.5 justify-items-center w-full" id="gridContainer"></div>
         </div>
@@ -120,7 +118,6 @@
     <!-- VIEW 2: DEVICE DETAIL -->
     <section id="viewDetail" class="hidden pb-12 px-4 max-w-md mx-auto">
       <div class="flex flex-col w-full gap-5">
-        <!-- Hero Squircle & Segmented Toggle -->
         <div class="flex flex-col items-center justify-center pt-2">
           <div id="detailHeroBadge" class="w-24 h-24 rounded-2xl shadow-sm flex flex-col items-center justify-center transition-colors select-none">
             <span class="text-2xl font-bold leading-none" id="detailHeroLabel">--</span>
@@ -133,7 +130,6 @@
           </div>
         </div>
 
-        <!-- Form Container -->
         <div class="w-full bg-white rounded-2xl p-4 shadow-sm border border-[#e9e8e7] flex flex-col gap-4">
           <div class="flex flex-col gap-1">
             <label for="inputDetailCustomer" class="text-xs font-semibold text-[#5d403b]">Customer</label>
@@ -174,8 +170,8 @@
 
   </main>
 
-  <!-- ==================== GLOBAL FLOATING ACTIONS (SETUP VIEW ONLY) ==================== -->
-  <aside id="setupFABs" class="fixed bottom-6 right-6 z-30 hidden flex flex-col items-center gap-3">
+  <!-- ==================== FLOATING ACTION BUTTONS (Z-50 OVERLAY) ==================== -->
+  <aside id="setupFABs" class="fixed bottom-6 right-6 z-50 hidden flex flex-col items-center gap-3 pointer-events-auto">
     <button type="button" id="btnTransferFab" onclick="openTransferModal()" class="w-10 h-10 bg-[#efeded] hover:bg-[#e3e2e2] text-[#1b1c1c] font-bold text-sm rounded-full flex items-center justify-center shadow-md active:scale-95 transition-transform cursor-pointer" title="Import / Export">
       &lt;&gt;
     </button>
@@ -186,7 +182,7 @@
 
   <!-- ==================== GLOBAL MODALS ==================== -->
 
-  <!-- Modal 1: Backup & Transfer (Export/Import) -->
+  <!-- Modal 1: Backup & Transfer -->
   <div id="transferModal" class="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 hidden">
     <div class="bg-white rounded-2xl p-5 w-full max-w-xs shadow-xl flex flex-col gap-4">
       <div class="flex justify-center">
@@ -196,7 +192,6 @@
         </div>
       </div>
 
-      <!-- Export Panel -->
       <div id="exportSection" class="flex flex-col gap-2">
         <label class="text-[11px] font-semibold text-[#5d403b] uppercase tracking-wider">File Name</label>
         <div class="flex items-center w-full bg-[#f5f3f3] rounded-lg border border-[#e9e8e7] overflow-hidden focus-within:ring-1 focus-within:ring-[#916f69]">
@@ -205,7 +200,6 @@
         </div>
       </div>
 
-      <!-- Import Panel -->
       <div id="importSection" class="flex flex-col gap-2 hidden">
         <label class="text-[11px] font-semibold text-[#5d403b] uppercase tracking-wider">Select Backup File</label>
         <input type="file" id="importFileInput" accept=".json" class="hidden">
@@ -216,7 +210,6 @@
         <p id="importStatusHint" class="text-[11px] text-[#916f69] text-center mt-0.5 min-h-[16px]"></p>
       </div>
 
-      <!-- Modal Footer -->
       <div class="flex items-center justify-between pt-1 border-t border-[#f5f3f3]">
         <button type="button" onclick="closeTransferModal()" class="px-3 py-2 text-xs font-semibold text-[#5d403b] cursor-pointer hover:text-[#1b1c1c]">Cancel</button>
         <button type="button" id="btnActionTransfer" onclick="handleTransferAction()" class="px-5 py-2 bg-[#b80000] hover:bg-[#8b0000] text-white text-xs font-bold rounded-xl cursor-pointer transition-colors shadow-sm">Export</button>
@@ -249,7 +242,7 @@
     </div>
   </div>
 
-  <!-- ==================== APPLICATION CORE LOGIC ==================== -->
+  <!-- ==================== LOGIC ==================== -->
   <script>
     function ensureEmptySlotBuffer(data) {
       if (!data) data = {};
@@ -378,7 +371,7 @@
 
     // Grid View
     function renderGridView() {
-      const devMap = new Map(globalStore.devices.map(d => [d.id, d]));
+      const devMap = new Map((globalStore.devices || []).map(d => [d.id, d]));
       const container = document.getElementById("gridContainer");
       container.innerHTML = "";
 
@@ -386,7 +379,7 @@
       let officeCount = 0;
       let inactiveCount = 0;
 
-      globalStore.slots.forEach(slot => {
+      (globalStore.slots || []).forEach(slot => {
         const dev = slot.device_id ? devMap.get(slot.device_id) : null;
 
         if (!dev) {
@@ -450,12 +443,12 @@
     }
 
     function renderListView() {
-      const devMap = new Map(globalStore.devices.map(d => [d.id, d]));
+      const devMap = new Map((globalStore.devices || []).map(d => [d.id, d]));
       const outList = [];
       const officeList = [];
       const inactiveList = [];
 
-      globalStore.slots.forEach(slot => {
+      (globalStore.slots || []).forEach(slot => {
         if (!slot.device_id) return;
         const dev = devMap.get(slot.device_id);
         if (!dev) return;
@@ -562,10 +555,10 @@
       }
     }
 
-    // Device Detail
+    // Detail View
     function initDetailView(devId) {
-      const dev = globalStore.devices.find(d => d.id === devId);
-      const slotEntry = globalStore.slots.find(s => s.device_id === devId);
+      const dev = (globalStore.devices || []).find(d => d.id === devId);
+      const slotEntry = (globalStore.slots || []).find(s => s.device_id === devId);
       if (!dev) return;
 
       detailBaseline = JSON.parse(JSON.stringify(dev));
@@ -664,7 +657,7 @@
     });
 
     function commitDetailSave() {
-      const dev = globalStore.devices.find(d => d.id === activeDetailDeviceId);
+      const dev = (globalStore.devices || []).find(d => d.id === activeDetailDeviceId);
       if (!dev) return;
 
       dev.status = detailCurrentStatus;
@@ -707,7 +700,7 @@
 
     function getNextXXName() {
       const targetStore = setupWorkingStore || globalStore;
-      const existingNames = new Set((targetStore.devices || []).map(d => d.label.toUpperCase()));
+      const existingNames = new Set((targetStore.devices || []).map(d => (d.label || '').toUpperCase()));
       let i = 1;
       while (true) {
         const pad = i < 10 ? `0${i}` : `${i}`;
@@ -729,7 +722,7 @@
       container.innerHTML = "";
       const devMap = new Map((setupWorkingStore.devices || []).map(d => [d.id, d]));
 
-      const totalSlots = setupWorkingStore.slots.length;
+      const totalSlots = (setupWorkingStore.slots || []).length;
       const chunkSize = 5;
 
       for (let i = 0; i < totalSlots; i += chunkSize) {
@@ -869,7 +862,7 @@
     // Swap Modal
     function openSwapModal(slotNum) {
       activeSwapSourceNum = slotNum;
-      const totalSlots = setupWorkingStore.slots.length;
+      const totalSlots = (setupWorkingStore.slots || []).length;
       const padMax = totalSlots < 10 ? `0${totalSlots}` : `${totalSlots}`;
       const padSrc = slotNum < 10 ? `0${slotNum}` : `${slotNum}`;
 
@@ -893,7 +886,7 @@
       const input = document.getElementById("inputTargetSlot");
       const btn = document.getElementById("btnConfirmSwap");
       const val = parseInt(input.value, 10);
-      const maxSlots = setupWorkingStore.slots.length;
+      const maxSlots = (setupWorkingStore.slots || []).length;
 
       if (!isNaN(val) && val >= 1 && val <= maxSlots && val !== activeSwapSourceNum) {
         btn.disabled = false;
@@ -908,7 +901,7 @@
 
     function confirmSwapAction() {
       const targetVal = parseInt(document.getElementById("inputTargetSlot").value, 10);
-      const maxSlots = setupWorkingStore.slots.length;
+      const maxSlots = (setupWorkingStore.slots || []).length;
       if (isNaN(targetVal) || targetVal < 1 || targetVal > maxSlots || targetVal === activeSwapSourceNum) {
         closeSwapModal();
         return;
@@ -968,7 +961,7 @@
         return;
       }
 
-      const duplicate = setupWorkingStore.devices.some(d => d.id !== activeRenameDeviceId && d.label.toUpperCase() === val.toUpperCase());
+      const duplicate = setupWorkingStore.devices.some(d => d.id !== activeRenameDeviceId && (d.label || '').toUpperCase() === val.toUpperCase());
       if (duplicate) {
         btn.disabled = true;
         btn.className = "px-4 py-1.5 bg-[#efeded] text-[#5d403b]/40 text-xs font-bold rounded-lg cursor-not-allowed";
@@ -997,7 +990,7 @@
       const newLabel = document.getElementById("inputRename").value.trim();
       if (!isValidDeviceName(newLabel)) return;
 
-      const duplicate = setupWorkingStore.devices.some(d => d.id !== activeRenameDeviceId && d.label.toUpperCase() === newLabel.toUpperCase());
+      const duplicate = setupWorkingStore.devices.some(d => d.id !== activeRenameDeviceId && (d.label || '').toUpperCase() === newLabel.toUpperCase());
       if (duplicate) return;
 
       if (newLabel && activeRenameDeviceId) {
@@ -1167,7 +1160,7 @@
       }
     }
 
-    // Launch into Grid View
+    // Startup View
     switchView("grid");
   </script>
 </body>
