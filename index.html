@@ -759,6 +759,7 @@
               </div>
             `;
           } else {
+            card.id = `setup_row_${dev.id}`;
             const isOut = dev.status === "out" && dev.is_active;
             const isOffice = dev.status === "office" && dev.is_active;
             const isInactive = !dev.is_active;
@@ -828,14 +829,18 @@
       if (!setupWorkingStore) {
         setupWorkingStore = JSON.parse(JSON.stringify(globalStore));
       }
-      let firstEmpty = setupWorkingStore.slots.find(s => s.device_id === null);
-      if (!firstEmpty) {
+
+      let emptyIndex = setupWorkingStore.slots.findIndex(s => s.device_id === null);
+      if (emptyIndex === -1) {
         setupWorkingStore = ensureEmptySlotBuffer(setupWorkingStore);
-        firstEmpty = setupWorkingStore.slots.find(s => s.device_id === null);
+        emptyIndex = setupWorkingStore.slots.findIndex(s => s.device_id === null);
       }
-      if (firstEmpty) {
+
+      if (emptyIndex !== -1) {
+        const targetSlot = setupWorkingStore.slots[emptyIndex];
         const newDevLabel = getNextXXName();
         const newDevId = `dev_${Date.now()}_${newDevLabel}`;
+
         setupWorkingStore.devices.push({
           id: newDevId,
           label: newDevLabel,
@@ -846,10 +851,23 @@
           out_date: null,
           due_date: null
         });
-        firstEmpty.device_id = newDevId;
+        targetSlot.device_id = newDevId;
+
+        // Auto-expand the 5-slot group holding this newly filled slot
+        const groupChunkIndex = Math.floor(emptyIndex / 5) * 5;
+        setupOpenGroupIds.add(`setup_group_${groupChunkIndex}`);
+
         setupWorkingStore = ensureEmptySlotBuffer(setupWorkingStore);
         setSetupDirty();
         renderSetupView();
+
+        // Scroll the newly created device row directly into view
+        setTimeout(() => {
+          const newRow = document.getElementById(`setup_row_${newDevId}`);
+          if (newRow) {
+            newRow.scrollIntoView({ behavior: "smooth", block: "center" });
+          }
+        }, 100);
       }
     }
 
