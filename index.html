@@ -1,0 +1,1166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport">
+  <title>Woody — Field Asset Ledger</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Roboto+Flex:wght@600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { font-family: 'Inter', sans-serif; overscroll-behavior: none; }
+    .font-code { font-family: 'Roboto Flex', monospace; }
+  </style>
+</head>
+<body class="bg-[#fbf9f9] text-[#1b1c1c] flex flex-col min-h-screen select-none">
+
+  <!-- ==================== GLOBAL APP BAR ==================== -->
+  <header class="fixed top-0 w-full z-40 bg-[#fbf9f9]/90 backdrop-blur-xl border-b border-[#e9e8e7]">
+    <div class="h-6"></div>
+    <div class="h-16 px-4 relative flex items-center justify-between max-w-md mx-auto w-full">
+      <!-- Main Navigation Toggle (Grid / List Views) -->
+      <div id="navMain" class="flex-1 flex items-center justify-center relative">
+        <div class="bg-[#efeded] p-1 rounded-xl flex items-center">
+          <button type="button" id="tabList" onclick="switchView('list')" class="px-4 py-1.5 rounded-lg text-xs font-semibold text-[#5d403b] hover:text-[#1b1c1c] transition-all cursor-pointer">List</button>
+          <button type="button" id="tabGrid" onclick="switchView('grid')" class="px-4 py-1.5 rounded-lg text-xs font-bold bg-white text-[#b80000] shadow-sm transition-all cursor-pointer">Grid</button>
+        </div>
+        <div class="absolute right-0 flex items-center">
+          <button type="button" onclick="switchView('setup')" class="w-10 h-10 flex items-center justify-center text-[#5d403b] hover:text-[#1b1c1c] cursor-pointer">
+            <span class="material-symbols-outlined text-[24px]">more_vert</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Secondary Screen Navigation (Detail & Setup Views) -->
+      <div id="navSub" class="hidden w-full flex items-center justify-between">
+        <button type="button" id="btnHeaderBack" onclick="handleHeaderBack()" class="px-4 py-2 bg-[#efeded] hover:bg-[#e3e2e2] text-[#1b1c1c] font-semibold text-sm rounded-xl transition-colors cursor-pointer">
+          Back
+        </button>
+        <h1 id="subHeaderTitle" class="text-xs font-bold uppercase tracking-wider text-[#5d403b]"></h1>
+        <button type="button" id="btnHeaderSave" disabled class="px-5 py-2 bg-[#efeded] text-[#5d403b]/40 font-bold text-sm rounded-xl cursor-not-allowed transition-all">
+          Save
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ==================== ROOT VIEWS CONTAINER ==================== -->
+  <main class="flex-1 w-full pt-24 overflow-y-auto">
+
+    <!-- VIEW 1A: GRID VIEW -->
+    <section id="viewGrid" class="block pb-12 px-4 max-w-md mx-auto">
+      <div class="flex flex-col w-full gap-4">
+        <!-- Telemetry Pill Bar -->
+        <div class="flex items-center justify-center gap-2 w-full select-none" id="telemetryBar">
+          <div class="flex-1 py-1.5 rounded-lg bg-[#fbc02d] text-[#1a1a1a] font-bold text-xs text-center shadow-sm" id="countOut">Out: 0</div>
+          <div class="flex-1 py-1.5 rounded-lg bg-[#2e7d32] text-white font-bold text-xs text-center shadow-sm" id="countOffice">Office: 0</div>
+          <div class="flex-1 py-1.5 rounded-lg bg-[#dbdad9] text-[#1b1c1c] font-bold text-xs text-center shadow-sm" id="countInactive">Inactive: 0</div>
+        </div>
+
+        <!-- 5-Column Pegboard Matrix -->
+        <div class="bg-[#f5f3f3] p-4 rounded-2xl shadow-sm border border-[#e9e8e7]">
+          <div class="grid grid-cols-5 gap-2.5 justify-items-center w-full" id="gridContainer"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 1B: LIST VIEW -->
+    <section id="viewList" class="hidden pb-12 px-4 max-w-md mx-auto">
+      <div class="flex flex-col w-full gap-3">
+        <!-- Accordion 1: Out on Job -->
+        <div class="flex flex-col rounded-xl bg-[#f5f3f3] border border-[#e9e8e7] overflow-hidden">
+          <button type="button" onclick="toggleAccordion('listOutContent', 'listOutIcon')" class="w-full p-4 flex items-center justify-between text-left cursor-pointer hover:bg-[#efeded] transition-colors">
+            <div class="flex items-center gap-2">
+              <h2 class="text-xs uppercase font-bold tracking-wider text-[#5d403b]">Out on Job</h2>
+              <span class="px-2 py-0.5 rounded-full bg-[#e3e2e2] text-xs font-bold" id="badgeListCountOut">0</span>
+            </div>
+            <span class="material-symbols-outlined text-[#916f69] transition-transform duration-200" id="listOutIcon">expand_more</span>
+          </button>
+          <div class="flex flex-col px-3 pb-3 gap-2 hidden" id="listOutContent"></div>
+        </div>
+
+        <!-- Accordion 2: In Office -->
+        <div class="flex flex-col rounded-xl bg-[#f5f3f3] border border-[#e9e8e7] overflow-hidden">
+          <button type="button" onclick="toggleAccordion('listOfficeContent', 'listOfficeIcon')" class="w-full p-4 flex items-center justify-between text-left cursor-pointer hover:bg-[#efeded] transition-colors">
+            <div class="flex items-center gap-2">
+              <h2 class="text-xs uppercase font-bold tracking-wider text-[#5d403b]">In Office</h2>
+              <span class="px-2 py-0.5 rounded-full bg-[#e3e2e2] text-xs font-bold" id="badgeListCountOffice">0</span>
+            </div>
+            <span class="material-symbols-outlined text-[#916f69] transition-transform duration-200" id="listOfficeIcon">expand_more</span>
+          </button>
+          <div class="flex flex-col px-3 pb-3 gap-2 hidden" id="listOfficeContent"></div>
+        </div>
+
+        <!-- Accordion 3: Inactive Devices -->
+        <div class="flex flex-col rounded-xl bg-[#f5f3f3] border border-[#e9e8e7] overflow-hidden">
+          <button type="button" onclick="toggleAccordion('listInactiveContent', 'listInactiveIcon')" class="w-full p-4 flex items-center justify-between text-left cursor-pointer hover:bg-[#efeded] transition-colors">
+            <div class="flex items-center gap-2">
+              <h2 class="text-xs uppercase font-bold tracking-wider text-[#5d403b]">Inactive Devices</h2>
+              <span class="px-2 py-0.5 rounded-full bg-[#e3e2e2] text-xs font-bold" id="badgeListCountInactive">0</span>
+            </div>
+            <span class="material-symbols-outlined text-[#916f69] transition-transform duration-200" id="listInactiveIcon">expand_more</span>
+          </button>
+          <div class="flex flex-col px-3 pb-3 gap-2 hidden" id="listInactiveContent"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 2: DEVICE DETAIL -->
+    <section id="viewDetail" class="hidden pb-12 px-4 max-w-md mx-auto">
+      <div class="flex flex-col w-full gap-5">
+        <!-- Hero Squircle & Segmented Toggle -->
+        <div class="flex flex-col items-center justify-center pt-2">
+          <div id="detailHeroBadge" class="w-24 h-24 rounded-2xl shadow-sm flex flex-col items-center justify-center transition-colors select-none">
+            <span class="text-2xl font-bold leading-none" id="detailHeroLabel">--</span>
+            <span class="text-xs font-semibold mt-1 opacity-80" id="detailHeroSlot">#--</span>
+          </div>
+
+          <div class="mt-4 w-48 bg-[#efeded] p-1 rounded-xl flex items-center justify-between">
+            <button type="button" id="btnDetailToggleOut" class="w-1/2 py-2 rounded-lg text-xs font-bold transition-all text-center">Out</button>
+            <button type="button" id="btnDetailToggleOffice" class="w-1/2 py-2 rounded-lg text-xs font-bold transition-all text-center cursor-pointer">Office</button>
+          </div>
+        </div>
+
+        <!-- Form Container -->
+        <div class="w-full bg-white rounded-2xl p-4 shadow-sm border border-[#e9e8e7] flex flex-col gap-4">
+          <div class="flex flex-col gap-1">
+            <label for="inputDetailCustomer" class="text-xs font-semibold text-[#5d403b]">Customer</label>
+            <input type="text" id="inputDetailCustomer" placeholder="Enter customer name" class="w-full h-11 bg-[#f5f3f3] text-sm text-[#1b1c1c] font-medium px-3 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#916f69]">
+          </div>
+
+          <div class="flex flex-col gap-1">
+            <label for="inputDetailEvent" class="text-xs font-semibold text-[#5d403b]">Event</label>
+            <input type="text" id="inputDetailEvent" placeholder="Enter event name" class="w-full h-11 bg-[#f5f3f3] text-sm text-[#1b1c1c] font-medium px-3 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#916f69]">
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div class="flex flex-col gap-1">
+              <label for="inputDetailOutDate" class="text-xs font-semibold text-[#5d403b]">Out Date</label>
+              <input type="date" id="inputDetailOutDate" class="w-full h-11 bg-[#f5f3f3] text-sm text-[#1b1c1c] font-medium px-3 rounded-lg focus:outline-none">
+            </div>
+            <div class="flex flex-col gap-1">
+              <label for="inputDetailDueDate" class="text-xs font-semibold text-[#5d403b]">Due Date</label>
+              <input type="date" id="inputDetailDueDate" class="w-full h-11 bg-[#f5f3f3] text-sm text-[#1b1c1c] font-medium px-3 rounded-lg focus:outline-none">
+            </div>
+          </div>
+
+          <div class="bg-[#f5f3f3] p-3 rounded-xl flex items-start gap-2 text-[#5d403b] text-xs leading-relaxed">
+            <span class="material-symbols-outlined text-[18px] text-[#b80000] shrink-0">info</span>
+            <div>
+              <p>Tapping <strong>Office</strong> clears all fields.</p>
+              <p class="mt-0.5">Typing in any field switches status to <strong>Out</strong>.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 3: SLOT ALLOCATION & DEVICE CONFIG -->
+    <section id="viewSetup" class="hidden pb-28 px-4 max-w-md mx-auto relative">
+      <div class="flex flex-col w-full gap-3" id="setupGroupsContainer"></div>
+    </section>
+
+  </main>
+
+  <!-- ==================== GLOBAL FLOATING ACTIONS (SETUP VIEW ONLY) ==================== -->
+  <aside id="setupFABs" class="fixed bottom-6 right-6 z-30 hidden flex flex-col items-center gap-3">
+    <button type="button" id="btnTransferFab" onclick="openTransferModal()" class="w-10 h-10 bg-[#efeded] hover:bg-[#e3e2e2] text-[#1b1c1c] font-bold text-sm rounded-full flex items-center justify-center shadow-md active:scale-95 transition-transform cursor-pointer" title="Import / Export">
+      &lt;&gt;
+    </button>
+    <button type="button" id="btnFabAdd" onclick="handleAddDevice()" class="w-14 h-14 bg-[#b80000] text-white rounded-2xl flex items-center justify-center shadow-lg active:scale-95 transition-transform cursor-pointer">
+      <span class="material-symbols-outlined text-[28px]">add</span>
+    </button>
+  </aside>
+
+  <!-- ==================== GLOBAL MODALS ==================== -->
+
+  <!-- Modal 1: Backup & Transfer (Export/Import) -->
+  <div id="transferModal" class="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-2xl p-5 w-full max-w-xs shadow-xl flex flex-col gap-4">
+      <div class="flex justify-center">
+        <div class="bg-[#efeded] p-1 rounded-xl flex items-center">
+          <button type="button" id="toggleModeExport" onclick="setTransferMode('export')" class="px-4 py-1.5 rounded-lg text-xs font-bold bg-white text-[#b80000] shadow-sm transition-all cursor-default">Export</button>
+          <button type="button" id="toggleModeImport" onclick="setTransferMode('import')" class="px-4 py-1.5 rounded-lg text-xs font-semibold text-[#5d403b] hover:text-[#1b1c1c] transition-all cursor-pointer">Import</button>
+        </div>
+      </div>
+
+      <!-- Export Panel -->
+      <div id="exportSection" class="flex flex-col gap-2">
+        <label class="text-[11px] font-semibold text-[#5d403b] uppercase tracking-wider">File Name</label>
+        <div class="flex items-center w-full bg-[#f5f3f3] rounded-lg border border-[#e9e8e7] overflow-hidden focus-within:ring-1 focus-within:ring-[#916f69]">
+          <input type="text" id="inputExportFilename" class="flex-1 h-11 bg-transparent text-xs text-[#1b1c1c] px-3 font-code focus:outline-none">
+          <span class="px-3 text-xs text-[#916f69] font-code bg-[#efeded] h-11 flex items-center select-none border-l border-[#e9e8e7]">.json</span>
+        </div>
+      </div>
+
+      <!-- Import Panel -->
+      <div id="importSection" class="flex flex-col gap-2 hidden">
+        <label class="text-[11px] font-semibold text-[#5d403b] uppercase tracking-wider">Select Backup File</label>
+        <input type="file" id="importFileInput" accept=".json" class="hidden">
+        <button type="button" id="btnChooseFile" onclick="document.getElementById('importFileInput').click()" class="w-full h-11 bg-[#f5f3f3] hover:bg-[#efeded] border border-[#e9e8e7] text-xs font-medium text-[#1b1c1c] px-3 rounded-lg flex items-center justify-center gap-2 cursor-pointer transition-colors">
+          <span class="material-symbols-outlined text-[18px]">folder_open</span>
+          <span id="labelChosenFile" class="truncate">Choose .json file</span>
+        </button>
+        <p id="importStatusHint" class="text-[11px] text-[#916f69] text-center mt-0.5 min-h-[16px]"></p>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="flex items-center justify-between pt-1 border-t border-[#f5f3f3]">
+        <button type="button" onclick="closeTransferModal()" class="px-3 py-2 text-xs font-semibold text-[#5d403b] cursor-pointer hover:text-[#1b1c1c]">Cancel</button>
+        <button type="button" id="btnActionTransfer" onclick="handleTransferAction()" class="px-5 py-2 bg-[#b80000] hover:bg-[#8b0000] text-white text-xs font-bold rounded-xl cursor-pointer transition-colors shadow-sm">Export</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 2: Swap Slot -->
+  <div id="swapModal" class="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-2xl p-5 w-full max-w-xs shadow-xl flex flex-col gap-3">
+      <h3 class="text-sm font-bold" id="swapModalTitle">Swap Slot with:</h3>
+      <input type="number" id="inputTargetSlot" placeholder="Target slot #" class="w-full h-11 bg-[#f5f3f3] text-sm px-3 rounded-lg focus:outline-none">
+      <div class="flex items-center justify-end gap-2 pt-2">
+        <button type="button" onclick="closeSwapModal()" class="px-3 py-1.5 text-xs font-semibold text-[#5d403b] cursor-pointer">Cancel</button>
+        <button type="button" id="btnConfirmSwap" disabled onclick="confirmSwapAction()" class="px-4 py-1.5 bg-[#efeded] text-[#5d403b]/40 text-xs font-bold rounded-lg cursor-not-allowed">Swap</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 3: Rename Device -->
+  <div id="renameModal" class="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-2xl p-5 w-full max-w-xs shadow-xl flex flex-col gap-3">
+      <h3 class="text-sm font-bold" id="renameModalTitle">Rename Device:</h3>
+      <input type="text" id="inputRename" placeholder="New label (e.g. XX01)" class="w-full h-11 bg-[#f5f3f3] text-sm px-3 rounded-lg focus:outline-none font-code">
+      <p id="renameHint" class="text-[11px] text-[#916f69] -mt-1">Only letters, numbers, and underscores.</p>
+      <div class="flex items-center justify-end gap-2 pt-2">
+        <button type="button" onclick="closeRenameModal()" class="px-3 py-1.5 text-xs font-semibold text-[#5d403b] cursor-pointer">Cancel</button>
+        <button type="button" id="btnConfirmRename" disabled onclick="confirmRenameAction()" class="px-4 py-1.5 bg-[#efeded] text-[#5d403b]/40 text-xs font-bold rounded-lg cursor-not-allowed">Rename</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== APPLICATION CORE LOGIC ==================== -->
+  <script>
+    // --- Data Engine & Storage ---
+    function ensureEmptySlotBuffer(data) {
+      if (!data.slots) data.slots = [];
+      let emptyCount = data.slots.filter(s => s.device_id === null).length;
+
+      while (emptyCount < 5) {
+        const start = data.slots.length + 1;
+        for (let i = 0; i < 5; i++) {
+          const num = start + i;
+          const pad = num < 10 ? `0${num}` : `${num}`;
+          data.slots.push({ slot_number: num, slot_tag: `#${pad}`, device_id: null });
+        }
+        emptyCount += 5;
+      }
+
+      while (emptyCount >= 10 && data.slots.length > 5) {
+        const lastFive = data.slots.slice(data.slots.length - 5);
+        if (lastFive.every(s => s.device_id === null)) {
+          data.slots.splice(data.slots.length - 5, 5);
+          emptyCount -= 5;
+        } else {
+          break;
+        }
+      }
+      return data;
+    }
+
+    function loadStore() {
+      const raw = localStorage.getItem("fleet_ledger_data");
+      let data = raw ? JSON.parse(raw) : { slots: [], devices: [] };
+      return ensureEmptySlotBuffer(data);
+    }
+
+    function saveStore(data) {
+      ensureEmptySlotBuffer(data);
+      localStorage.setItem("fleet_ledger_data", JSON.stringify(data));
+    }
+
+    let globalStore = loadStore();
+
+    // --- View Navigation & Routing ---
+    let currentView = "grid";
+    let originView = "grid";
+    let activeDetailDeviceId = null;
+    let detailBaseline = {};
+    let detailCurrentStatus = "office";
+
+    // Setup working store (for uncommitted dirty states)
+    let setupWorkingStore = null;
+    let setupOpenGroupIds = new Set();
+    let isSetupDirty = false;
+
+    // List view return state memory
+    let listTargetScrollDevId = null;
+    let listTargetOpenSection = null;
+
+    function setScrollLock(locked) {
+      document.body.style.overflow = locked ? "hidden" : "";
+    }
+
+    function switchView(viewName, params = {}) {
+      const prevView = currentView;
+      currentView = viewName;
+
+      // DOM Container visibility
+      ["viewGrid", "viewList", "viewDetail", "viewSetup"].forEach(id => {
+        document.getElementById(id).classList.add("hidden");
+      });
+
+      const navMain = document.getElementById("navMain");
+      const navSub = document.getElementById("navSub");
+      const setupFABs = document.getElementById("setupFABs");
+      const subHeaderTitle = document.getElementById("subHeaderTitle");
+      const btnHeaderSave = document.getElementById("btnHeaderSave");
+
+      setupFABs.classList.add("hidden");
+
+      if (viewName === "grid" || viewName === "list") {
+        navMain.classList.remove("hidden");
+        navSub.classList.add("hidden");
+
+        const tabGrid = document.getElementById("tabGrid");
+        const tabList = document.getElementById("tabList");
+
+        if (viewName === "grid") {
+          tabGrid.className = "px-4 py-1.5 rounded-lg text-xs font-bold bg-white text-[#b80000] shadow-sm transition-all cursor-pointer";
+          tabList.className = "px-4 py-1.5 rounded-lg text-xs font-semibold text-[#5d403b] hover:text-[#1b1c1c] transition-all cursor-pointer";
+          document.getElementById("viewGrid").classList.remove("hidden");
+          renderGridView();
+        } else {
+          tabList.className = "px-4 py-1.5 rounded-lg text-xs font-bold bg-white text-[#b80000] shadow-sm transition-all cursor-pointer";
+          tabGrid.className = "px-4 py-1.5 rounded-lg text-xs font-semibold text-[#5d403b] hover:text-[#1b1c1c] transition-all cursor-pointer";
+          document.getElementById("viewList").classList.remove("hidden");
+          renderListView();
+        }
+      } else if (viewName === "detail") {
+        navMain.classList.add("hidden");
+        navSub.classList.remove("hidden");
+        subHeaderTitle.textContent = "";
+        document.getElementById("viewDetail").classList.remove("hidden");
+
+        originView = prevView === "list" ? "list" : "grid";
+        activeDetailDeviceId = params.id;
+        initDetailView(params.id);
+      } else if (viewName === "setup") {
+        navMain.classList.add("hidden");
+        navSub.classList.remove("hidden");
+        subHeaderTitle.textContent = "Slot Allocation & Device Config";
+        setupFABs.classList.remove("hidden");
+        document.getElementById("viewSetup").classList.remove("hidden");
+
+        originView = prevView === "list" ? "list" : "grid";
+        setupWorkingStore = JSON.parse(JSON.stringify(globalStore));
+        setupOpenGroupIds.clear(); // Reset to collapsed on entry
+        setSetupClean();
+        renderSetupView();
+      }
+    }
+
+    function handleHeaderBack() {
+      if (currentView === "detail") {
+        switchView(originView);
+      } else if (currentView === "setup") {
+        // Discard setup edits silently
+        setupWorkingStore = null;
+        switchView(originView);
+      }
+    }
+
+    // --- View 1A: Grid Logic ---
+    function renderGridView() {
+      const devMap = new Map(globalStore.devices.map(d => [d.id, d]));
+      const container = document.getElementById("gridContainer");
+      container.innerHTML = "";
+
+      let outCount = 0;
+      let officeCount = 0;
+      let inactiveCount = 0;
+
+      globalStore.slots.forEach(slot => {
+        const dev = slot.device_id ? devMap.get(slot.device_id) : null;
+
+        if (!dev) {
+          const emptyCell = document.createElement("div");
+          emptyCell.className = "flex flex-col items-center justify-center w-14 h-14 rounded-2xl border-2 border-dashed border-[#9e9e9e] text-[#9e9e9e] select-none cursor-default";
+          emptyCell.innerHTML = `<span class="font-bold text-xs">--</span><span class="text-[9px] font-semibold mt-0.5">${slot.slot_tag}</span>`;
+          container.appendChild(emptyCell);
+          return;
+        }
+
+        if (!dev.is_active) {
+          inactiveCount++;
+          const inactiveCell = document.createElement("div");
+          inactiveCell.className = "flex flex-col items-center justify-center w-14 h-14 rounded-2xl bg-[#dbdad9] text-[#1b1c1c] shadow-sm select-none cursor-default opacity-85";
+          inactiveCell.innerHTML = `<span class="font-bold text-xs leading-tight">${dev.label}</span><span class="text-[9px] font-semibold opacity-70 mt-0.5">${slot.slot_tag}</span>`;
+          container.appendChild(inactiveCell);
+        } else if (dev.status === "out") {
+          outCount++;
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "flex flex-col items-center justify-center w-14 h-14 rounded-2xl bg-[#fbc02d] text-[#1a1a1a] shadow-sm hover:brightness-105 active:scale-95 transition-all select-none cursor-pointer";
+          btn.innerHTML = `<span class="font-bold text-xs leading-tight">${dev.label}</span><span class="text-[9px] font-semibold opacity-80 mt-0.5">${slot.slot_tag}</span>`;
+          btn.onclick = () => switchView("detail", { id: dev.id });
+          container.appendChild(btn);
+        } else {
+          officeCount++;
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "flex flex-col items-center justify-center w-14 h-14 rounded-2xl bg-[#2e7d32] text-white shadow-sm hover:brightness-105 active:scale-95 transition-all select-none cursor-pointer";
+          btn.innerHTML = `<span class="font-bold text-xs leading-tight">${dev.label}</span><span class="text-[9px] font-semibold opacity-80 mt-0.5">${slot.slot_tag}</span>`;
+          btn.onclick = () => switchView("detail", { id: dev.id });
+          container.appendChild(btn);
+        }
+      });
+
+      document.getElementById("countOut").textContent = `Out: ${outCount}`;
+      document.getElementById("countOffice").textContent = `Office: ${officeCount}`;
+      document.getElementById("countInactive").textContent = `Inactive: ${inactiveCount}`;
+    }
+
+    // --- View 1B: List Logic ---
+    function toggleAccordion(contentId, iconId, forceOpen = false) {
+      const content = document.getElementById(contentId);
+      const icon = document.getElementById(iconId);
+      const isHidden = content.classList.contains("hidden");
+
+      if (isHidden || forceOpen) {
+        content.classList.remove("hidden");
+        icon.classList.add("rotate-180");
+      } else {
+        content.classList.add("hidden");
+        icon.classList.remove("rotate-180");
+      }
+    }
+
+    function closeAccordion(contentId, iconId) {
+      const content = document.getElementById(contentId);
+      const icon = document.getElementById(iconId);
+      if (content) content.classList.add("hidden");
+      if (icon) icon.classList.remove("rotate-180");
+    }
+
+    function renderListView() {
+      const devMap = new Map(globalStore.devices.map(d => [d.id, d]));
+      const outList = [];
+      const officeList = [];
+      const inactiveList = [];
+
+      globalStore.slots.forEach(slot => {
+        if (!slot.device_id) return;
+        const dev = devMap.get(slot.device_id);
+        if (!dev) return;
+
+        const rowItem = { ...dev, slot_number: slot.slot_number, slot_tag: slot.slot_tag };
+        if (!dev.is_active) {
+          inactiveList.push(rowItem);
+        } else if (dev.status === "out") {
+          outList.push(rowItem);
+        } else {
+          officeList.push(rowItem);
+        }
+      });
+
+      document.getElementById("badgeListCountOut").textContent = outList.length;
+      document.getElementById("badgeListCountOffice").textContent = officeList.length;
+      document.getElementById("badgeListCountInactive").textContent = inactiveList.length;
+
+      // Render Out List
+      const outBox = document.getElementById("listOutContent");
+      outBox.innerHTML = "";
+      outList.forEach(dev => {
+        const row = document.createElement("div");
+        row.id = `list_row_${dev.id}`;
+        row.className = "w-full bg-white rounded-xl p-3 shadow-sm hover:shadow-md transition-all flex items-center justify-between gap-3 cursor-pointer select-none active:scale-[0.99]";
+        row.onclick = () => {
+          listTargetOpenSection = "listOutContent";
+          listTargetScrollDevId = dev.id;
+          switchView("detail", { id: dev.id });
+        };
+        row.innerHTML = `
+          <div class="flex items-center gap-3 min-w-0 flex-1">
+            <div class="w-12 h-12 rounded-xl bg-[#fbc02d] text-[#1a1a1a] flex flex-col items-center justify-center shrink-0 shadow-sm font-bold text-xs font-code">
+              ${dev.label}
+            </div>
+            <div class="flex flex-col min-w-0 flex-1">
+              <span class="text-sm font-semibold truncate text-[#1b1c1c]">${dev.customer || "Unspecified Customer"}</span>
+              <p class="text-xs text-[#5d403b] truncate">${dev.event || "No event"}</p>
+              <div class="text-[11px] text-[#916f69] font-medium mt-0.5">
+                ${dev.due_date ? `Due: ${dev.due_date}` : ""} ${dev.out_date ? `• Sent: ${dev.out_date}` : ""}
+              </div>
+            </div>
+          </div>
+          <span class="material-symbols-outlined text-[#916f69] text-xl">chevron_right</span>
+        `;
+        outBox.appendChild(row);
+      });
+
+      // Render Office List
+      const officeBox = document.getElementById("listOfficeContent");
+      officeBox.innerHTML = "";
+      officeList.forEach(dev => {
+        const row = document.createElement("div");
+        row.id = `list_row_${dev.id}`;
+        row.className = "w-full bg-white rounded-xl p-3 shadow-sm hover:shadow-md transition-all flex items-center justify-between gap-3 cursor-pointer select-none active:scale-[0.99]";
+        row.onclick = () => {
+          listTargetOpenSection = "listOfficeContent";
+          listTargetScrollDevId = dev.id;
+          switchView("detail", { id: dev.id });
+        };
+        row.innerHTML = `
+          <div class="flex items-center gap-3 min-w-0 flex-1">
+            <div class="w-12 h-12 rounded-xl bg-[#2e7d32] text-white flex flex-col items-center justify-center shrink-0 shadow-sm font-bold text-xs font-code">
+              ${dev.label}
+            </div>
+            <span class="text-sm font-semibold text-[#1b1c1c]">Available</span>
+          </div>
+          <span class="material-symbols-outlined text-[#916f69] text-xl">chevron_right</span>
+        `;
+        officeBox.appendChild(row);
+      });
+
+      // Render Inactive List
+      const inactiveBox = document.getElementById("listInactiveContent");
+      inactiveBox.innerHTML = "";
+      inactiveList.forEach(dev => {
+        const row = document.createElement("div");
+        row.className = "w-full bg-white/70 rounded-xl p-3 flex items-center justify-between gap-3 select-none cursor-default opacity-80";
+        row.innerHTML = `
+          <div class="flex items-center gap-3 min-w-0 flex-1">
+            <div class="w-12 h-12 rounded-xl bg-[#dbdad9] text-[#1b1c1c] flex flex-col items-center justify-center shrink-0 font-bold text-xs font-code">
+              ${dev.label}
+            </div>
+            <span class="text-sm font-medium text-[#5d403b]">Inactive</span>
+          </div>
+        `;
+        inactiveBox.appendChild(row);
+      });
+
+      // Restore accordion focus state if returning
+      if (listTargetOpenSection) {
+        ["listOutContent", "listOfficeContent", "listInactiveContent"].forEach(id => {
+          if (id !== listTargetOpenSection) {
+            closeAccordion(id, id === "listOutContent" ? "listOutIcon" : id === "listOfficeContent" ? "listOfficeIcon" : "listInactiveIcon");
+          }
+        });
+        const iconId = listTargetOpenSection === "listOutContent" ? "listOutIcon" : "listOfficeIcon";
+        toggleAccordion(listTargetOpenSection, iconId, true);
+
+        if (listTargetScrollDevId) {
+          setTimeout(() => {
+            const targetRow = document.getElementById(`list_row_${listTargetScrollDevId}`);
+            if (targetRow) targetRow.scrollIntoView({ behavior: "smooth", block: "center" });
+          }, 100);
+        }
+        listTargetOpenSection = null;
+        listTargetScrollDevId = null;
+      }
+    }
+
+    // --- View 2: Device Detail Logic ---
+    function initDetailView(devId) {
+      const dev = globalStore.devices.find(d => d.id === devId);
+      const slotEntry = globalStore.slots.find(s => s.device_id === devId);
+      if (!dev) return;
+
+      detailBaseline = JSON.parse(JSON.stringify(dev));
+      detailCurrentStatus = dev.status;
+
+      document.getElementById("detailHeroLabel").textContent = dev.label;
+      document.getElementById("detailHeroSlot").textContent = slotEntry ? slotEntry.slot_tag : "";
+      document.getElementById("inputDetailCustomer").value = dev.customer || "";
+      document.getElementById("inputDetailEvent").value = dev.event || "";
+      document.getElementById("inputDetailOutDate").value = dev.out_date || "";
+      document.getElementById("inputDetailDueDate").value = dev.due_date || "";
+
+      updateDetailVisualState(detailCurrentStatus);
+
+      const btnHeaderSave = document.getElementById("btnHeaderSave");
+      btnHeaderSave.onclick = commitDetailSave;
+    }
+
+    function updateDetailVisualState(status) {
+      detailCurrentStatus = status;
+      const heroBadge = document.getElementById("detailHeroBadge");
+      const btnOut = document.getElementById("btnDetailToggleOut");
+      const btnOffice = document.getElementById("btnDetailToggleOffice");
+
+      if (status === "out") {
+        heroBadge.className = "w-24 h-24 rounded-2xl shadow-sm flex flex-col items-center justify-center bg-[#fbc02d] text-[#1a1a1a] transition-colors select-none";
+        btnOut.className = "w-1/2 py-2 rounded-lg text-xs font-bold bg-white text-[#b80000] shadow-sm text-center cursor-default";
+        btnOffice.className = "w-1/2 py-2 rounded-lg text-xs font-semibold text-[#5d403b] hover:text-[#1b1c1c] text-center cursor-pointer";
+      } else {
+        heroBadge.className = "w-24 h-24 rounded-2xl shadow-sm flex flex-col items-center justify-center bg-[#2e7d32] text-white transition-colors select-none";
+        btnOffice.className = "w-1/2 py-2 rounded-lg text-xs font-bold bg-white text-[#b80000] shadow-sm text-center cursor-default";
+        btnOut.className = "w-1/2 py-2 rounded-lg text-xs font-semibold text-[#5d403b] hover:text-[#1b1c1c] text-center cursor-default";
+      }
+      checkDetailSaveEligibility();
+    }
+
+    function checkDetailSaveEligibility() {
+      const btnSave = document.getElementById("btnHeaderSave");
+      const c = document.getElementById("inputDetailCustomer").value.trim();
+      const e = document.getElementById("inputDetailEvent").value.trim();
+      const o = document.getElementById("inputDetailOutDate").value;
+      const d = document.getElementById("inputDetailDueDate").value;
+
+      const hasStatusChanged = detailCurrentStatus !== detailBaseline.status;
+      let canSave = false;
+
+      if (detailCurrentStatus === "office") {
+        canSave = detailBaseline.status === "out";
+      } else {
+        const allFilled = Boolean(c && e && o && d);
+        const fieldsChanged = (
+          c !== (detailBaseline.customer || "") ||
+          e !== (detailBaseline.event || "") ||
+          o !== (detailBaseline.out_date || "") ||
+          d !== (detailBaseline.due_date || "")
+        );
+        canSave = allFilled && (fieldsChanged || hasStatusChanged);
+      }
+
+      if (canSave) {
+        btnSave.disabled = false;
+        btnSave.className = "px-5 py-2 bg-[#b80000] hover:bg-[#8b0000] text-white font-bold text-sm rounded-xl cursor-pointer shadow-sm transition-all";
+      } else {
+        btnSave.disabled = true;
+        btnSave.className = "px-5 py-2 bg-[#efeded] text-[#5d403b]/40 font-bold text-sm rounded-xl cursor-not-allowed transition-all";
+      }
+    }
+
+    function handleDetailInput() {
+      const c = document.getElementById("inputDetailCustomer").value.trim();
+      const e = document.getElementById("inputDetailEvent").value.trim();
+      const o = document.getElementById("inputDetailOutDate").value;
+      const d = document.getElementById("inputDetailDueDate").value;
+
+      const hasAnyChar = Boolean(c || e || o || d);
+      if (hasAnyChar && detailCurrentStatus === "office") {
+        updateDetailVisualState("out");
+      } else {
+        checkDetailSaveEligibility();
+      }
+    }
+
+    ["inputDetailCustomer", "inputDetailEvent", "inputDetailOutDate", "inputDetailDueDate"].forEach(id => {
+      const el = document.getElementById(id);
+      el.addEventListener("input", handleDetailInput);
+      el.addEventListener("change", handleDetailInput);
+    });
+
+    document.getElementById("btnDetailToggleOffice").addEventListener("click", () => {
+      if (detailCurrentStatus === "office") return;
+      document.getElementById("inputDetailCustomer").value = "";
+      document.getElementById("inputDetailEvent").value = "";
+      document.getElementById("inputDetailOutDate").value = "";
+      document.getElementById("inputDetailDueDate").value = "";
+      updateDetailVisualState("office");
+    });
+
+    function commitDetailSave() {
+      const dev = globalStore.devices.find(d => d.id === activeDetailDeviceId);
+      if (!dev) return;
+
+      dev.status = detailCurrentStatus;
+      if (detailCurrentStatus === "office") {
+        dev.customer = "";
+        dev.event = "";
+        dev.out_date = null;
+        dev.due_date = null;
+      } else {
+        dev.customer = document.getElementById("inputDetailCustomer").value.trim();
+        dev.event = document.getElementById("inputDetailEvent").value.trim();
+        dev.out_date = document.getElementById("inputDetailOutDate").value;
+        dev.due_date = document.getElementById("inputDetailDueDate").value;
+      }
+
+      saveStore(globalStore);
+
+      // Memory navigation: redirect focus to the device's current section in List View
+      if (originView === "list") {
+        listTargetOpenSection = detailCurrentStatus === "out" ? "listOutContent" : "listOfficeContent";
+        listTargetScrollDevId = dev.id;
+      }
+      switchView(originView);
+    }
+
+    // --- View 3: Slot Allocation & Device Config Logic ---
+    function setSetupDirty() {
+      isSetupDirty = true;
+      const btnSave = document.getElementById("btnHeaderSave");
+      btnSave.disabled = false;
+      btnSave.className = "px-5 py-2 bg-[#b80000] hover:bg-[#8b0000] text-white font-bold text-sm rounded-xl cursor-pointer shadow-sm transition-all";
+    }
+
+    function setSetupClean() {
+      isSetupDirty = false;
+      const btnSave = document.getElementById("btnHeaderSave");
+      btnSave.disabled = true;
+      btnSave.className = "px-5 py-2 bg-[#efeded] text-[#5d403b]/40 font-bold text-sm rounded-xl cursor-not-allowed transition-all";
+      btnSave.onclick = commitSetupSave;
+    }
+
+    function getNextXXName() {
+      const existingNames = new Set(setupWorkingStore.devices.map(d => d.label.toUpperCase()));
+      let i = 1;
+      while (true) {
+        const pad = i < 10 ? `0${i}` : `${i}`;
+        const candidate = `XX${pad}`;
+        if (!existingNames.has(candidate)) return candidate;
+        i++;
+      }
+    }
+
+    function isValidDeviceName(name) {
+      return /^[a-zA-Z0-9_]+$/.test(name);
+    }
+
+    function renderSetupView() {
+      const container = document.getElementById("setupGroupsContainer");
+      container.innerHTML = "";
+      const devMap = new Map(setupWorkingStore.devices.map(d => [d.id, d]));
+
+      const totalSlots = setupWorkingStore.slots.length;
+      const chunkSize = 5;
+
+      for (let i = 0; i < totalSlots; i += chunkSize) {
+        const groupSlots = setupWorkingStore.slots.slice(i, i + chunkSize);
+        const startTag = groupSlots[0].slot_tag;
+        const endTag = groupSlots[groupSlots.length - 1].slot_tag;
+        const groupId = `setup_group_${i}`;
+        const isOpen = setupOpenGroupIds.has(groupId);
+
+        const groupSection = document.createElement("section");
+        groupSection.className = "flex flex-col rounded-xl bg-[#f5f3f3] border border-[#e9e8e7] overflow-hidden";
+
+        groupSection.innerHTML = `
+          <button type="button" onclick="toggleSetupGroup('${groupId}', this)" class="w-full p-4 flex items-center justify-between text-left cursor-pointer hover:bg-[#efeded] transition-colors">
+            <span class="text-xs uppercase font-bold tracking-wider text-[#1b1c1c]">${startTag} - ${endTag}</span>
+            <span class="material-symbols-outlined text-[#916f69] transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}">expand_more</span>
+          </button>
+          <div class="flex flex-col px-3 pb-3 gap-2 ${isOpen ? '' : 'hidden'}" id="${groupId}"></div>
+        `;
+
+        container.appendChild(groupSection);
+        const contentBox = groupSection.querySelector(`#${groupId}`);
+
+        groupSlots.forEach(slot => {
+          const dev = slot.device_id ? devMap.get(slot.device_id) : null;
+          const card = document.createElement("div");
+
+          if (!dev) {
+            card.className = "w-full bg-[#f5f3f3] border border-dashed border-[#9e9e9e] rounded-xl p-3 flex items-center justify-between";
+            card.innerHTML = `
+              <div class="flex items-center gap-3">
+                <span class="w-10 h-10 rounded-lg flex items-center justify-center font-bold text-xs font-code border-2 border-dashed border-[#9e9e9e] text-[#9e9e9e]">${slot.slot_tag}</span>
+                <span class="text-sm font-medium text-[#9e9e9e]">[Unassigned]</span>
+              </div>
+            `;
+          } else {
+            const isOut = dev.status === "out" && dev.is_active;
+            const isOffice = dev.status === "office" && dev.is_active;
+            const isInactive = !dev.is_active;
+
+            let badgeBg = "#dbdad9";
+            let badgeText = "#1b1c1c";
+            if (isOut) { badgeBg = "#fbc02d"; badgeText = "#1a1a1a"; }
+            else if (isOffice) { badgeBg = "#2e7d32"; badgeText = "#ffffff"; }
+
+            let toggleHtml = "";
+            if (!isOut) {
+              toggleHtml = `
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" ${dev.is_active ? "checked" : ""} class="sr-only peer" onchange="handleSetupDeviceActiveToggle('${dev.id}', this.checked)">
+                  <div class="w-11 h-6 bg-[#dbdad9] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#b80000]"></div>
+                </label>
+              `;
+            }
+
+            card.className = "w-full bg-white rounded-xl p-3 shadow-sm flex items-center justify-between gap-2";
+            card.innerHTML = `
+              <div class="flex items-center gap-3 min-w-0 flex-1">
+                <button type="button" onclick="openSwapModal(${slot.slot_number})" class="w-10 h-10 rounded-lg flex items-center justify-center shrink-0 font-bold text-xs font-code cursor-pointer active:scale-95 transition-transform" style="background-color: ${badgeBg}; color: ${badgeText};">
+                  ${slot.slot_tag}
+                </button>
+                <div class="flex flex-col min-w-0">
+                  <button type="button" onclick="openRenameModal('${dev.id}')" class="text-sm font-semibold text-[#1b1c1c] text-left hover:underline cursor-pointer">
+                    ${dev.label}
+                  </button>
+                  <span class="text-xs text-[#5d403b]">${isOut ? `${dev.customer} •${dev.event}` : (isInactive ? "Inactive" : "Available")}</span>
+                </div>
+              </div>
+              ${toggleHtml}
+            `;
+          }
+          contentBox.appendChild(card);
+        });
+      }
+    }
+
+    function toggleSetupGroup(id, btn) {
+      const content = document.getElementById(id);
+      const icon = btn.querySelector(".material-symbols-outlined");
+      const isHidden = content.classList.contains("hidden");
+
+      if (isHidden) {
+        content.classList.remove("hidden");
+        icon.classList.add("rotate-180");
+        setupOpenGroupIds.add(id);
+      } else {
+        content.classList.add("hidden");
+        icon.classList.remove("rotate-180");
+        setupOpenGroupIds.delete(id);
+      }
+    }
+
+    function handleSetupDeviceActiveToggle(devId, isChecked) {
+      const target = setupWorkingStore.devices.find(d => d.id === devId);
+      if (target) {
+        target.is_active = isChecked;
+        setSetupDirty();
+        renderSetupView();
+      }
+    }
+
+    function handleAddDevice() {
+      let firstEmpty = setupWorkingStore.slots.find(s => s.device_id === null);
+      if (!firstEmpty) {
+        setupWorkingStore = ensureEmptySlotBuffer(setupWorkingStore);
+        firstEmpty = setupWorkingStore.slots.find(s => s.device_id === null);
+      }
+      if (firstEmpty) {
+        const newDevLabel = getNextXXName();
+        const newDevId = `dev_${Date.now()}_${newDevLabel}`;
+        setupWorkingStore.devices.push({
+          id: newDevId,
+          label: newDevLabel,
+          is_active: false,
+          status: "office",
+          customer: "",
+          event: "",
+          out_date: null,
+          due_date: null
+        });
+        firstEmpty.device_id = newDevId;
+        setupWorkingStore = ensureEmptySlotBuffer(setupWorkingStore);
+        setSetupDirty();
+        renderSetupView();
+      }
+    }
+
+    function commitSetupSave() {
+      globalStore = JSON.parse(JSON.stringify(setupWorkingStore));
+      saveStore(globalStore);
+      setSetupClean();
+    }
+
+    // --- Modal Logic: Swap Slots ---
+    let activeSwapSourceNum = null;
+
+    function openSwapModal(slotNum) {
+      activeSwapSourceNum = slotNum;
+      const totalSlots = setupWorkingStore.slots.length;
+      const padMax = totalSlots < 10 ? `0${totalSlots}` : `${totalSlots}`;
+      const padSrc = slotNum < 10 ? `0${slotNum}` : `${slotNum}`;
+
+      document.getElementById("swapModalTitle").textContent = `Swap Slot #${padSrc} with: (01-${padMax})`;
+      const input = document.getElementById("inputTargetSlot");
+      input.value = "";
+      validateSwapInput();
+
+      document.getElementById("swapModal").classList.remove("hidden");
+      setScrollLock(true);
+      setTimeout(() => input.focus(), 50);
+    }
+
+    function closeSwapModal() {
+      document.getElementById("swapModal").classList.add("hidden");
+      setScrollLock(false);
+      activeSwapSourceNum = null;
+    }
+
+    function validateSwapInput() {
+      const input = document.getElementById("inputTargetSlot");
+      const btn = document.getElementById("btnConfirmSwap");
+      const val = parseInt(input.value, 10);
+      const maxSlots = setupWorkingStore.slots.length;
+
+      if (!isNaN(val) && val >= 1 && val <= maxSlots && val !== activeSwapSourceNum) {
+        btn.disabled = false;
+        btn.className = "px-4 py-1.5 bg-[#b80000] hover:bg-[#8b0000] text-white text-xs font-bold rounded-lg cursor-pointer transition-colors";
+      } else {
+        btn.disabled = true;
+        btn.className = "px-4 py-1.5 bg-[#efeded] text-[#5d403b]/40 text-xs font-bold rounded-lg cursor-not-allowed transition-colors";
+      }
+    }
+
+    document.getElementById("inputTargetSlot").addEventListener("input", validateSwapInput);
+
+    function confirmSwapAction() {
+      const targetVal = parseInt(document.getElementById("inputTargetSlot").value, 10);
+      const maxSlots = setupWorkingStore.slots.length;
+      if (isNaN(targetVal) || targetVal < 1 || targetVal > maxSlots || targetVal === activeSwapSourceNum) {
+        closeSwapModal();
+        return;
+      }
+      const slotA = setupWorkingStore.slots.find(s => s.slot_number === activeSwapSourceNum);
+      const slotB = setupWorkingStore.slots.find(s => s.slot_number === targetVal);
+
+      if (slotA && slotB) {
+        const tempId = slotA.device_id;
+        slotA.device_id = slotB.device_id;
+        slotB.device_id = tempId;
+        setSetupDirty();
+        renderSetupView();
+      }
+      closeSwapModal();
+    }
+
+    // --- Modal Logic: Rename Device ---
+    let activeRenameDeviceId = null;
+
+    function openRenameModal(devId) {
+      activeRenameDeviceId = devId;
+      const dev = setupWorkingStore.devices.find(d => d.id === devId);
+      document.getElementById("renameModalTitle").textContent = `Rename Device (${dev ? dev.label : devId})`;
+      const input = document.getElementById("inputRename");
+      input.value = dev ? dev.label : "";
+      validateRenameInput();
+      document.getElementById("renameModal").classList.remove("hidden");
+      setScrollLock(true);
+      setTimeout(() => input.focus(), 50);
+    }
+
+    function closeRenameModal() {
+      document.getElementById("renameModal").classList.add("hidden");
+      setScrollLock(false);
+      activeRenameDeviceId = null;
+    }
+
+    function validateRenameInput() {
+      const input = document.getElementById("inputRename");
+      const btn = document.getElementById("btnConfirmRename");
+      const hint = document.getElementById("renameHint");
+      const val = input.value.trim();
+      const currentDev = setupWorkingStore.devices.find(d => d.id === activeRenameDeviceId);
+
+      if (!val) {
+        btn.disabled = true;
+        btn.className = "px-4 py-1.5 bg-[#efeded] text-[#5d403b]/40 text-xs font-bold rounded-lg cursor-not-allowed";
+        hint.textContent = "Name cannot be empty.";
+        hint.className = "text-[11px] text-[#b80000] -mt-1";
+        return;
+      }
+
+      if (!isValidDeviceName(val)) {
+        btn.disabled = true;
+        btn.className = "px-4 py-1.5 bg-[#efeded] text-[#5d403b]/40 text-xs font-bold rounded-lg cursor-not-allowed";
+        hint.textContent = "Only A-Z, a-z, 0-9, and _ allowed.";
+        hint.className = "text-[11px] text-[#b80000] -mt-1";
+        return;
+      }
+
+      const duplicate = setupWorkingStore.devices.some(d => d.id !== activeRenameDeviceId && d.label.toUpperCase() === val.toUpperCase());
+      if (duplicate) {
+        btn.disabled = true;
+        btn.className = "px-4 py-1.5 bg-[#efeded] text-[#5d403b]/40 text-xs font-bold rounded-lg cursor-not-allowed";
+        hint.textContent = `"${val}" is already in use.`;
+        hint.className = "text-[11px] text-[#b80000] -mt-1";
+        return;
+      }
+
+      if (currentDev && currentDev.label === val) {
+        btn.disabled = true;
+        btn.className = "px-4 py-1.5 bg-[#efeded] text-[#5d403b]/40 text-xs font-bold rounded-lg cursor-not-allowed";
+        hint.textContent = "Current device name.";
+        hint.className = "text-[11px] text-[#916f69] -mt-1";
+        return;
+      }
+
+      btn.disabled = false;
+      btn.className = "px-4 py-1.5 bg-[#b80000] hover:bg-[#8b0000] text-white text-xs font-bold rounded-lg cursor-pointer transition-colors";
+      hint.textContent = "Valid device name.";
+      hint.className = "text-[11px] text-[#2e7d32] -mt-1";
+    }
+
+    document.getElementById("inputRename").addEventListener("input", validateRenameInput);
+
+    function confirmRenameAction() {
+      const newLabel = document.getElementById("inputRename").value.trim();
+      if (!isValidDeviceName(newLabel)) return;
+
+      const duplicate = setupWorkingStore.devices.some(d => d.id !== activeRenameDeviceId && d.label.toUpperCase() === newLabel.toUpperCase());
+      if (duplicate) return;
+
+      if (newLabel && activeRenameDeviceId) {
+        const dev = setupWorkingStore.devices.find(d => d.id === activeRenameDeviceId);
+        if (dev) {
+          dev.label = newLabel;
+          setSetupDirty();
+          renderSetupView();
+        }
+      }
+      closeRenameModal();
+    }
+
+    // --- Modal Logic: Transfer / Backup (Import / Export) ---
+    let transferMode = "export";
+    let stagedImportData = null;
+
+    function formatTimestampForFile() {
+      const now = new Date();
+      const pad = (n) => String(n).padStart(2, "0");
+      const yyyy = now.getFullYear();
+      const mm = pad(now.getMonth() + 1);
+      const dd = pad(now.getDate());
+      const hh = pad(now.getHours());
+      const min = pad(now.getMinutes());
+      const ss = pad(now.getSeconds());
+      return `fleet_export_${yyyy}${mm}${dd}_${hh}${min}${ss}`;
+    }
+
+    function clearTransferInputs() {
+      stagedImportData = null;
+      const fileInput = document.getElementById("importFileInput");
+      if (fileInput) fileInput.value = "";
+
+      const label = document.getElementById("labelChosenFile");
+      if (label) label.textContent = "Choose .json file";
+
+      const hint = document.getElementById("importStatusHint");
+      if (hint) {
+        hint.textContent = "";
+        hint.className = "text-[11px] text-[#916f69] text-center mt-0.5 min-h-[16px]";
+      }
+
+      const exportInput = document.getElementById("inputExportFilename");
+      if (exportInput) exportInput.value = formatTimestampForFile();
+    }
+
+    function openTransferModal() {
+      transferMode = "export";
+      clearTransferInputs();
+      updateTransferModalUI();
+      document.getElementById("transferModal").classList.remove("hidden");
+      setScrollLock(true);
+    }
+
+    function closeTransferModal() {
+      document.getElementById("transferModal").classList.add("hidden");
+      setScrollLock(false);
+      clearTransferInputs();
+    }
+
+    function setTransferMode(mode) {
+      if (transferMode === mode) return;
+      transferMode = mode;
+      clearTransferInputs();
+      updateTransferModalUI();
+    }
+
+    function updateTransferModalUI() {
+      const toggleExport = document.getElementById("toggleModeExport");
+      const toggleImport = document.getElementById("toggleModeImport");
+      const exportSec = document.getElementById("exportSection");
+      const importSec = document.getElementById("importSection");
+      const btnAction = document.getElementById("btnActionTransfer");
+
+      if (transferMode === "export") {
+        toggleExport.className = "px-4 py-1.5 rounded-lg text-xs font-bold bg-white text-[#b80000] shadow-sm transition-all cursor-default";
+        toggleImport.className = "px-4 py-1.5 rounded-lg text-xs font-semibold text-[#5d403b] hover:text-[#1b1c1c] transition-all cursor-pointer";
+        exportSec.classList.remove("hidden");
+        importSec.classList.add("hidden");
+        btnAction.textContent = "Export";
+        btnAction.disabled = false;
+        btnAction.className = "px-5 py-2 bg-[#b80000] hover:bg-[#8b0000] text-white text-xs font-bold rounded-xl cursor-pointer transition-colors shadow-sm";
+      } else {
+        toggleImport.className = "px-4 py-1.5 rounded-lg text-xs font-bold bg-white text-[#b80000] shadow-sm transition-all cursor-default";
+        toggleExport.className = "px-4 py-1.5 rounded-lg text-xs font-semibold text-[#5d403b] hover:text-[#1b1c1c] transition-all cursor-pointer";
+        importSec.classList.remove("hidden");
+        exportSec.classList.add("hidden");
+        btnAction.textContent = "Import";
+
+        if (stagedImportData) {
+          btnAction.disabled = false;
+          btnAction.className = "px-5 py-2 bg-[#b80000] hover:bg-[#8b0000] text-white text-xs font-bold rounded-xl cursor-pointer transition-colors shadow-sm";
+        } else {
+          btnAction.disabled = true;
+          btnAction.className = "px-5 py-2 bg-[#efeded] text-[#5d403b]/40 text-xs font-bold rounded-xl cursor-not-allowed transition-colors";
+        }
+      }
+    }
+
+    document.getElementById("importFileInput").addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      const hint = document.getElementById("importStatusHint");
+      const label = document.getElementById("labelChosenFile");
+
+      if (!file) {
+        stagedImportData = null;
+        label.textContent = "Choose .json file";
+        hint.textContent = "";
+        updateTransferModalUI();
+        return;
+      }
+
+      label.textContent = file.name;
+      const reader = new FileReader();
+
+      reader.onload = (event) => {
+        try {
+          const parsed = JSON.parse(event.target.result);
+          if (!parsed || !Array.isArray(parsed.slots) || !Array.isArray(parsed.devices)) {
+            throw new Error("Invalid structure");
+          }
+          stagedImportData = parsed;
+          hint.textContent = `Valid backup (${parsed.devices.length} devices detected)`;
+          hint.className = "text-[11px] text-[#2e7d32] text-center mt-0.5";
+        } catch (err) {
+          stagedImportData = null;
+          hint.textContent = "Invalid or corrupted JSON backup";
+          hint.className = "text-[11px] text-[#b80000] text-center mt-0.5";
+        }
+        updateTransferModalUI();
+      };
+
+      reader.readAsText(file);
+    });
+
+    function handleTransferAction() {
+      if (transferMode === "export") {
+        let baseName = document.getElementById("inputExportFilename").value.trim();
+        if (!baseName) baseName = formatTimestampForFile();
+        baseName = baseName.replace(/\.json$/i, "");
+        const fileName = `${baseName}.json`;
+
+        const jsonStr = JSON.stringify(setupWorkingStore, null, 2);
+        const blob = new Blob([jsonStr], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        closeTransferModal();
+      } else {
+        if (!stagedImportData) return;
+        setupWorkingStore = ensureEmptySlotBuffer(stagedImportData);
+        globalStore = JSON.parse(JSON.stringify(setupWorkingStore));
+        saveStore(globalStore);
+        setSetupClean();
+        renderSetupView();
+        closeTransferModal();
+      }
+    }
+
+    // --- Startup Initialization ---
+    switchView("grid");
+  </script>
+</body>
+</html>
