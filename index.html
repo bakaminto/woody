@@ -3,7 +3,17 @@
 <head>
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport">
-  <title>Woody — Field Asset Ledger</title>
+  <title>Woody Devices</title>
+
+  <!-- PWA & Shortcut Icon Metadata -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" sizes="512x512" href="icon512.png">
+  <link rel="apple-touch-icon" sizes="512x512" href="icon512.png">
+  <meta name="theme-color" content="#b80000">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Woody">
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Roboto+Flex:wght@600;700&display=swap" rel="stylesheet">
@@ -241,7 +251,6 @@
 
   <!-- ==================== APPLICATION CORE LOGIC ==================== -->
   <script>
-    // --- Data Engine & Storage ---
     function ensureEmptySlotBuffer(data) {
       if (!data.slots) data.slots = [];
       let emptyCount = data.slots.filter(s => s.device_id === null).length;
@@ -281,19 +290,16 @@
 
     let globalStore = loadStore();
 
-    // --- View Navigation & Routing ---
     let currentView = "grid";
     let originView = "grid";
     let activeDetailDeviceId = null;
     let detailBaseline = {};
     let detailCurrentStatus = "office";
 
-    // Setup working store (for uncommitted dirty states)
     let setupWorkingStore = null;
     let setupOpenGroupIds = new Set();
     let isSetupDirty = false;
 
-    // List view return state memory
     let listTargetScrollDevId = null;
     let listTargetOpenSection = null;
 
@@ -305,7 +311,6 @@
       const prevView = currentView;
       currentView = viewName;
 
-      // DOM Container visibility
       ["viewGrid", "viewList", "viewDetail", "viewSetup"].forEach(id => {
         document.getElementById(id).classList.add("hidden");
       });
@@ -314,7 +319,6 @@
       const navSub = document.getElementById("navSub");
       const setupFABs = document.getElementById("setupFABs");
       const subHeaderTitle = document.getElementById("subHeaderTitle");
-      const btnHeaderSave = document.getElementById("btnHeaderSave");
 
       setupFABs.classList.add("hidden");
 
@@ -354,7 +358,7 @@
 
         originView = prevView === "list" ? "list" : "grid";
         setupWorkingStore = JSON.parse(JSON.stringify(globalStore));
-        setupOpenGroupIds.clear(); // Reset to collapsed on entry
+        setupOpenGroupIds.clear();
         setSetupClean();
         renderSetupView();
       }
@@ -364,13 +368,12 @@
       if (currentView === "detail") {
         switchView(originView);
       } else if (currentView === "setup") {
-        // Discard setup edits silently
         setupWorkingStore = null;
         switchView(originView);
       }
     }
 
-    // --- View 1A: Grid Logic ---
+    // Grid View
     function renderGridView() {
       const devMap = new Map(globalStore.devices.map(d => [d.id, d]));
       const container = document.getElementById("gridContainer");
@@ -421,7 +424,7 @@
       document.getElementById("countInactive").textContent = `Inactive: ${inactiveCount}`;
     }
 
-    // --- View 1B: List Logic ---
+    // List View
     function toggleAccordion(contentId, iconId, forceOpen = false) {
       const content = document.getElementById(contentId);
       const icon = document.getElementById(iconId);
@@ -468,7 +471,6 @@
       document.getElementById("badgeListCountOffice").textContent = officeList.length;
       document.getElementById("badgeListCountInactive").textContent = inactiveList.length;
 
-      // Render Out List
       const outBox = document.getElementById("listOutContent");
       outBox.innerHTML = "";
       outList.forEach(dev => {
@@ -498,7 +500,6 @@
         outBox.appendChild(row);
       });
 
-      // Render Office List
       const officeBox = document.getElementById("listOfficeContent");
       officeBox.innerHTML = "";
       officeList.forEach(dev => {
@@ -522,7 +523,6 @@
         officeBox.appendChild(row);
       });
 
-      // Render Inactive List
       const inactiveBox = document.getElementById("listInactiveContent");
       inactiveBox.innerHTML = "";
       inactiveList.forEach(dev => {
@@ -539,7 +539,6 @@
         inactiveBox.appendChild(row);
       });
 
-      // Restore accordion focus state if returning
       if (listTargetOpenSection) {
         ["listOutContent", "listOfficeContent", "listInactiveContent"].forEach(id => {
           if (id !== listTargetOpenSection) {
@@ -560,7 +559,7 @@
       }
     }
 
-    // --- View 2: Device Detail Logic ---
+    // Device Detail
     function initDetailView(devId) {
       const dev = globalStore.devices.find(d => d.id === devId);
       const slotEntry = globalStore.slots.find(s => s.device_id === devId);
@@ -680,7 +679,6 @@
 
       saveStore(globalStore);
 
-      // Memory navigation: redirect focus to the device's current section in List View
       if (originView === "list") {
         listTargetOpenSection = detailCurrentStatus === "out" ? "listOutContent" : "listOfficeContent";
         listTargetScrollDevId = dev.id;
@@ -688,7 +686,7 @@
       switchView(originView);
     }
 
-    // --- View 3: Slot Allocation & Device Config Logic ---
+    // Setup View
     function setSetupDirty() {
       isSetupDirty = true;
       const btnSave = document.getElementById("btnHeaderSave");
@@ -702,21 +700,6 @@
       btnSave.disabled = true;
       btnSave.className = "px-5 py-2 bg-[#efeded] text-[#5d403b]/40 font-bold text-sm rounded-xl cursor-not-allowed transition-all";
       btnSave.onclick = commitSetupSave;
-    }
-
-    function getNextXXName() {
-      const existingNames = new Set(setupWorkingStore.devices.map(d => d.label.toUpperCase()));
-      let i = 1;
-      while (true) {
-        const pad = i < 10 ? `0${i}` : `${i}`;
-        const candidate = `XX${pad}`;
-        if (!existingNames.has(candidate)) return candidate;
-        i++;
-      }
-    }
-
-    function isValidDeviceName(name) {
-      return /^[a-zA-Z0-9_]+$/.test(name);
     }
 
     function renderSetupView() {
@@ -858,9 +841,7 @@
       setSetupClean();
     }
 
-    // --- Modal Logic: Swap Slots ---
-    let activeSwapSourceNum = null;
-
+    // Swap Modal
     function openSwapModal(slotNum) {
       activeSwapSourceNum = slotNum;
       const totalSlots = setupWorkingStore.slots.length;
@@ -920,9 +901,7 @@
       closeSwapModal();
     }
 
-    // --- Modal Logic: Rename Device ---
-    let activeRenameDeviceId = null;
-
+    // Rename Modal
     function openRenameModal(devId) {
       activeRenameDeviceId = devId;
       const dev = setupWorkingStore.devices.find(d => d.id === devId);
@@ -1007,40 +986,7 @@
       closeRenameModal();
     }
 
-    // --- Modal Logic: Transfer / Backup (Import / Export) ---
-    let transferMode = "export";
-    let stagedImportData = null;
-
-    function formatTimestampForFile() {
-      const now = new Date();
-      const pad = (n) => String(n).padStart(2, "0");
-      const yyyy = now.getFullYear();
-      const mm = pad(now.getMonth() + 1);
-      const dd = pad(now.getDate());
-      const hh = pad(now.getHours());
-      const min = pad(now.getMinutes());
-      const ss = pad(now.getSeconds());
-      return `fleet_export_${yyyy}${mm}${dd}_${hh}${min}${ss}`;
-    }
-
-    function clearTransferInputs() {
-      stagedImportData = null;
-      const fileInput = document.getElementById("importFileInput");
-      if (fileInput) fileInput.value = "";
-
-      const label = document.getElementById("labelChosenFile");
-      if (label) label.textContent = "Choose .json file";
-
-      const hint = document.getElementById("importStatusHint");
-      if (hint) {
-        hint.textContent = "";
-        hint.className = "text-[11px] text-[#916f69] text-center mt-0.5 min-h-[16px]";
-      }
-
-      const exportInput = document.getElementById("inputExportFilename");
-      if (exportInput) exportInput.value = formatTimestampForFile();
-    }
-
+    // Backup & Transfer Modal
     function openTransferModal() {
       transferMode = "export";
       clearTransferInputs();
@@ -1159,7 +1105,7 @@
       }
     }
 
-    // --- Startup Initialization ---
+    // Launch into Grid View
     switchView("grid");
   </script>
 </body>
