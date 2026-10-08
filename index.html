@@ -192,6 +192,7 @@
         </div>
       </div>
 
+      <!-- Export Panel -->
       <div id="exportSection" class="flex flex-col gap-2">
         <label class="text-[11px] font-semibold text-[#5d403b] uppercase tracking-wider">File Name</label>
         <div class="flex items-center w-full bg-[#f5f3f3] rounded-lg border border-[#e9e8e7] overflow-hidden focus-within:ring-1 focus-within:ring-[#916f69]">
@@ -200,6 +201,7 @@
         </div>
       </div>
 
+      <!-- Import Panel -->
       <div id="importSection" class="flex flex-col gap-2 hidden">
         <label class="text-[11px] font-semibold text-[#5d403b] uppercase tracking-wider">Select Backup File</label>
         <input type="file" id="importFileInput" accept=".json" class="hidden">
@@ -207,7 +209,13 @@
           <span class="material-symbols-outlined text-[18px]">folder_open</span>
           <span id="labelChosenFile" class="truncate">Choose .json file</span>
         </button>
-        <p id="importStatusHint" class="text-[11px] text-[#916f69] text-center mt-0.5 min-h-[16px]"></p>
+        <!-- On-the-fly Clean Reset Link -->
+        <div class="flex justify-center -mt-0.5">
+          <button type="button" onclick="downloadResetFile()" class="text-[11px] text-[#5d403b] hover:text-[#b80000] underline font-medium cursor-pointer transition-colors">
+            get reset file
+          </button>
+        </div>
+        <p id="importStatusHint" class="text-[11px] text-[#916f69] text-center min-h-[16px]"></p>
       </div>
 
       <div class="flex items-center justify-between pt-1 border-t border-[#f5f3f3]">
@@ -853,7 +861,6 @@
         });
         targetSlot.device_id = newDevId;
 
-        // Auto-expand the 5-slot group holding this newly filled slot
         const groupChunkIndex = Math.floor(emptyIndex / 5) * 5;
         setupOpenGroupIds.add(`setup_group_${groupChunkIndex}`);
 
@@ -861,7 +868,6 @@
         setSetupDirty();
         renderSetupView();
 
-        // Scroll the newly created device row directly into view
         setTimeout(() => {
           const newRow = document.getElementById(`setup_row_${newDevId}`);
           if (newRow) {
@@ -1049,7 +1055,7 @@
       const hint = document.getElementById("importStatusHint");
       if (hint) {
         hint.textContent = "";
-        hint.className = "text-[11px] text-[#916f69] text-center mt-0.5 min-h-[16px]";
+        hint.className = "text-[11px] text-[#916f69] text-center min-h-[16px]";
       }
 
       const exportInput = document.getElementById("inputExportFilename");
@@ -1136,17 +1142,41 @@
           }
           stagedImportData = parsed;
           hint.textContent = `Valid backup (${parsed.devices.length} devices detected)`;
-          hint.className = "text-[11px] text-[#2e7d32] text-center mt-0.5";
+          hint.className = "text-[11px] text-[#2e7d32] text-center min-h-[16px]";
         } catch (err) {
           stagedImportData = null;
           hint.textContent = "Invalid or corrupted JSON backup";
-          hint.className = "text-[11px] text-[#b80000] text-center mt-0.5";
+          hint.className = "text-[11px] text-[#b80000] text-center min-h-[16px]";
         }
         updateTransferModalUI();
       };
 
       reader.readAsText(file);
     });
+
+    function downloadResetFile() {
+      const resetData = {
+        slots: [
+          { slot_number: 1, slot_tag: "#01", device_id: null },
+          { slot_number: 2, slot_tag: "#02", device_id: null },
+          { slot_number: 3, slot_tag: "#03", device_id: null },
+          { slot_number: 4, slot_tag: "#04", device_id: null },
+          { slot_number: 5, slot_tag: "#05", device_id: null }
+        ],
+        devices: []
+      };
+
+      const jsonStr = JSON.stringify(resetData, null, 2);
+      const blob = new Blob([jsonStr], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "woody_clean_reset.json";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
 
     function handleTransferAction() {
       if (transferMode === "export") {
