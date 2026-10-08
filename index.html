@@ -252,7 +252,10 @@
   <!-- ==================== APPLICATION CORE LOGIC ==================== -->
   <script>
     function ensureEmptySlotBuffer(data) {
+      if (!data) data = {};
       if (!data.slots) data.slots = [];
+      if (!data.devices) data.devices = [];
+
       let emptyCount = data.slots.filter(s => s.device_id === null).length;
 
       while (emptyCount < 5) {
@@ -702,10 +705,29 @@
       btnSave.onclick = commitSetupSave;
     }
 
+    function getNextXXName() {
+      const targetStore = setupWorkingStore || globalStore;
+      const existingNames = new Set((targetStore.devices || []).map(d => d.label.toUpperCase()));
+      let i = 1;
+      while (true) {
+        const pad = i < 10 ? `0${i}` : `${i}`;
+        const candidate = `XX${pad}`;
+        if (!existingNames.has(candidate)) return candidate;
+        i++;
+      }
+    }
+
+    function isValidDeviceName(name) {
+      return /^[a-zA-Z0-9_]+$/.test(name);
+    }
+
     function renderSetupView() {
+      if (!setupWorkingStore) {
+        setupWorkingStore = JSON.parse(JSON.stringify(globalStore));
+      }
       const container = document.getElementById("setupGroupsContainer");
       container.innerHTML = "";
-      const devMap = new Map(setupWorkingStore.devices.map(d => [d.id, d]));
+      const devMap = new Map((setupWorkingStore.devices || []).map(d => [d.id, d]));
 
       const totalSlots = setupWorkingStore.slots.length;
       const chunkSize = 5;
@@ -810,6 +832,9 @@
     }
 
     function handleAddDevice() {
+      if (!setupWorkingStore) {
+        setupWorkingStore = JSON.parse(JSON.stringify(globalStore));
+      }
       let firstEmpty = setupWorkingStore.slots.find(s => s.device_id === null);
       if (!firstEmpty) {
         setupWorkingStore = ensureEmptySlotBuffer(setupWorkingStore);
@@ -987,7 +1012,43 @@
     }
 
     // Backup & Transfer Modal
+    let transferMode = "export";
+    let stagedImportData = null;
+
+    function formatTimestampForFile() {
+      const now = new Date();
+      const pad = (n) => String(n).padStart(2, "0");
+      const yyyy = now.getFullYear();
+      const mm = pad(now.getMonth() + 1);
+      const dd = pad(now.getDate());
+      const hh = pad(now.getHours());
+      const min = pad(now.getMinutes());
+      const ss = pad(now.getSeconds());
+      return `fleet_export_${yyyy}${mm}${dd}_${hh}${min}${ss}`;
+    }
+
+    function clearTransferInputs() {
+      stagedImportData = null;
+      const fileInput = document.getElementById("importFileInput");
+      if (fileInput) fileInput.value = "";
+
+      const label = document.getElementById("labelChosenFile");
+      if (label) label.textContent = "Choose .json file";
+
+      const hint = document.getElementById("importStatusHint");
+      if (hint) {
+        hint.textContent = "";
+        hint.className = "text-[11px] text-[#916f69] text-center mt-0.5 min-h-[16px]";
+      }
+
+      const exportInput = document.getElementById("inputExportFilename");
+      if (exportInput) exportInput.value = formatTimestampForFile();
+    }
+
     function openTransferModal() {
+      if (!setupWorkingStore) {
+        setupWorkingStore = JSON.parse(JSON.stringify(globalStore));
+      }
       transferMode = "export";
       clearTransferInputs();
       updateTransferModalUI();
@@ -1083,7 +1144,8 @@
         baseName = baseName.replace(/\.json$/i, "");
         const fileName = `${baseName}.json`;
 
-        const jsonStr = JSON.stringify(setupWorkingStore, null, 2);
+        const targetData = setupWorkingStore || globalStore;
+        const jsonStr = JSON.stringify(targetData, null, 2);
         const blob = new Blob([jsonStr], { type: "application/json" });
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
