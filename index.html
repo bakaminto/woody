@@ -207,7 +207,6 @@
           <span class="material-symbols-outlined text-[18px]">folder_open</span>
           <span id="labelChosenFile" class="truncate">Choose .json file</span>
         </button>
-        <!-- On-the-fly Clean Reset Link -->
         <div class="flex justify-center -mt-0.5">
           <button type="button" onclick="downloadResetFile()" class="text-[11px] text-[#5d403b] hover:text-[#b80000] underline font-medium cursor-pointer transition-colors">
             get reset file
@@ -755,6 +754,7 @@
         groupSlots.forEach(slot => {
           const dev = slot.device_id ? devMap.get(slot.device_id) : null;
           const card = document.createElement("div");
+          card.id = `setup_card_slot_${slot.slot_number}`;
 
           if (!dev) {
             card.className = "w-full bg-[#f5f3f3] border border-dashed border-[#9e9e9e] rounded-xl p-3 flex items-center justify-between";
@@ -765,7 +765,6 @@
               </div>
             `;
           } else {
-            card.id = `setup_row_${dev.id}`;
             const isOut = dev.status === "out" && dev.is_active;
             const isOffice = dev.status === "office" && dev.is_active;
             const isInactive = !dev.is_active;
@@ -867,9 +866,9 @@
         renderSetupView();
 
         setTimeout(() => {
-          const newRow = document.getElementById(`setup_row_${newDevId}`);
-          if (newRow) {
-            newRow.scrollIntoView({ behavior: "smooth", block: "center" });
+          const targetCard = document.getElementById(`setup_card_slot_${targetSlot.slot_number}`);
+          if (targetCard) {
+            targetCard.scrollIntoView({ behavior: "smooth", block: "center" });
           }
         }, 100);
       }
@@ -935,8 +934,21 @@
         const tempId = slotA.device_id;
         slotA.device_id = slotB.device_id;
         slotB.device_id = tempId;
+
+        // Auto-expand group of the swapped target slot
+        const targetGroupChunkIndex = Math.floor((targetVal - 1) / 5) * 5;
+        setupOpenGroupIds.add(`setup_group_${targetGroupChunkIndex}`);
+
         setSetupDirty();
         renderSetupView();
+
+        // Jump focus to newly assigned target slot
+        setTimeout(() => {
+          const targetCard = document.getElementById(`setup_card_slot_${targetVal}`);
+          if (targetCard) {
+            targetCard.scrollIntoView({ behavior: "smooth", block: "center" });
+          }
+        }, 100);
       }
       closeSwapModal();
     }
