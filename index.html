@@ -17,7 +17,6 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Roboto+Flex:wght@600;700&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body { font-family: 'Inter', sans-serif; overscroll-behavior: none; }
@@ -37,8 +36,8 @@
           <button type="button" id="tabGrid" onclick="switchView('grid')" class="px-4 py-1.5 rounded-lg text-xs font-bold bg-white text-[#b80000] shadow-sm transition-all cursor-pointer">Grid</button>
         </div>
         <div class="absolute right-0 flex items-center">
-          <button type="button" onclick="switchView('setup')" class="w-10 h-10 flex items-center justify-center text-[#5d403b] hover:text-[#1b1c1c] cursor-pointer">
-            <span class="material-symbols-outlined text-[24px]">more_vert</span>
+          <button type="button" onclick="switchView('setup')" class="w-10 h-10 flex items-center justify-center text-[#5d403b] hover:text-[#1b1c1c] cursor-pointer" aria-label="Settings">
+            <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
           </button>
         </div>
       </div>
@@ -84,7 +83,7 @@
               <h2 class="text-xs uppercase font-bold tracking-wider text-[#5d403b]">Out on Job</h2>
               <span class="px-2 py-0.5 rounded-full bg-[#e3e2e2] text-xs font-bold" id="badgeListCountOut">0</span>
             </div>
-            <span class="material-symbols-outlined text-[#916f69] transition-transform duration-200" id="listOutIcon">expand_more</span>
+            <svg id="listOutIcon" class="w-5 h-5 text-[#916f69] transition-transform duration-200 fill-current" viewBox="0 0 24 24"><path d="M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z"/></svg>
           </button>
           <div class="flex flex-col px-3 pb-3 gap-2 hidden" id="listOutContent"></div>
         </div>
@@ -96,7 +95,7 @@
               <h2 class="text-xs uppercase font-bold tracking-wider text-[#5d403b]">In Office</h2>
               <span class="px-2 py-0.5 rounded-full bg-[#e3e2e2] text-xs font-bold" id="badgeListCountOffice">0</span>
             </div>
-            <span class="material-symbols-outlined text-[#916f69] transition-transform duration-200" id="listOfficeIcon">expand_more</span>
+            <svg id="listOfficeIcon" class="w-5 h-5 text-[#916f69] transition-transform duration-200 fill-current" viewBox="0 0 24 24"><path d="M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z"/></svg>
           </button>
           <div class="flex flex-col px-3 pb-3 gap-2 hidden" id="listOfficeContent"></div>
         </div>
@@ -108,7 +107,7 @@
               <h2 class="text-xs uppercase font-bold tracking-wider text-[#5d403b]">Inactive Devices</h2>
               <span class="px-2 py-0.5 rounded-full bg-[#e3e2e2] text-xs font-bold" id="badgeListCountInactive">0</span>
             </div>
-            <span class="material-symbols-outlined text-[#916f69] transition-transform duration-200" id="listInactiveIcon">expand_more</span>
+            <svg id="listInactiveIcon" class="w-5 h-5 text-[#916f69] transition-transform duration-200 fill-current" viewBox="0 0 24 24"><path d="M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z"/></svg>
           </button>
           <div class="flex flex-col px-3 pb-3 gap-2 hidden" id="listInactiveContent"></div>
         </div>
@@ -153,7 +152,7 @@
           </div>
 
           <div class="bg-[#f5f3f3] p-3 rounded-xl flex items-start gap-2 text-[#5d403b] text-xs leading-relaxed">
-            <span class="material-symbols-outlined text-[18px] text-[#b80000] shrink-0">info</span>
+            <svg class="w-[18px] h-[18px] text-[#b80000] shrink-0 fill-current" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
             <div>
               <p>Tapping <strong>Office</strong> clears all fields.</p>
               <p class="mt-0.5">Typing in any field switches status to <strong>Out</strong>.</p>
@@ -166,7 +165,6 @@
     <!-- VIEW 3: SLOTS & DEVICES -->
     <section id="viewSetup" class="hidden pb-28 px-4 max-w-md mx-auto relative">
       <div class="flex flex-col w-full gap-3" id="setupGroupsContainer"></div>
-      <!-- Version display at bottom center of the list -->
       <div class="w-full py-8 text-center">
         <span id="versionLabel" class="text-[11px] font-code text-[#5d403b]/40 tracking-wider"></span>
       </div>
@@ -179,8 +177,8 @@
     <button type="button" id="btnTransferFab" onclick="openTransferModal()" class="w-10 h-10 bg-[#efeded] hover:bg-[#e3e2e2] text-[#1b1c1c] font-bold text-sm rounded-full flex items-center justify-center shadow-md active:scale-95 transition-transform cursor-pointer" title="Import / Export">
       &lt;&gt;
     </button>
-    <button type="button" id="btnFabAdd" onclick="handleAddDevice()" class="w-14 h-14 bg-[#b80000] text-white rounded-2xl flex items-center justify-center shadow-lg active:scale-95 transition-transform cursor-pointer">
-      <span class="material-symbols-outlined text-[28px]">add</span>
+    <button type="button" id="btnFabAdd" onclick="handleAddDevice()" class="w-14 h-14 bg-[#b80000] text-white rounded-2xl flex items-center justify-center shadow-lg active:scale-95 transition-transform cursor-pointer" aria-label="Add Device">
+      <svg class="w-7 h-7 fill-current" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
     </button>
   </aside>
 
@@ -208,7 +206,7 @@
         <label class="text-[11px] font-semibold text-[#5d403b] uppercase tracking-wider">Select Backup File</label>
         <input type="file" id="importFileInput" accept=".json" class="hidden">
         <button type="button" id="btnChooseFile" onclick="document.getElementById('importFileInput').click()" class="w-full h-11 bg-[#f5f3f3] hover:bg-[#efeded] border border-[#e9e8e7] text-xs font-medium text-[#1b1c1c] px-3 rounded-lg flex items-center justify-center gap-2 cursor-pointer transition-colors">
-          <span class="material-symbols-outlined text-[18px]">folder_open</span>
+          <svg class="w-[18px] h-[18px] fill-current text-[#1b1c1c]" viewBox="0 0 24 24"><path d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V8h16v10z"/></svg>
           <span id="labelChosenFile" class="truncate">Choose .json file</span>
         </button>
         <div class="flex justify-center -mt-0.5">
@@ -261,11 +259,11 @@
       - Increment the build counter by +1 on EVERY new build or code revision 
         (e.g., v1.27 -> v1.28).
       - Whenever updating APP_VERSION here, also increment CACHE_NAME in sw.js 
-        (e.g., 'woody-v1.27') so the browser detects the byte change and updates 
+        (e.g., 'woody-v1.28') so the browser detects the byte change and updates 
         the offline cache.
       ======================================================================
     */
-    const APP_VERSION = "v1.27";
+    const APP_VERSION = "v1.28";
 
     function ensureEmptySlotBuffer(data) {
       if (!data) data = {};
@@ -514,7 +512,7 @@
               </div>
             </div>
           </div>
-          <span class="material-symbols-outlined text-[#916f69] text-xl">chevron_right</span>
+          <svg class="w-5 h-5 text-[#916f69] fill-current" viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
         `;
         outBox.appendChild(row);
       });
@@ -537,7 +535,7 @@
             </div>
             <span class="text-sm font-semibold text-[#1b1c1c]">Available</span>
           </div>
-          <span class="material-symbols-outlined text-[#916f69] text-xl">chevron_right</span>
+          <svg class="w-5 h-5 text-[#916f69] fill-current" viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
         `;
         officeBox.appendChild(row);
       });
@@ -761,7 +759,7 @@
         groupSection.innerHTML = `
           <button type="button" onclick="toggleSetupGroup('${groupId}', this)" class="w-full p-4 flex items-center justify-between text-left cursor-pointer hover:bg-[#efeded] transition-colors">
             <span class="text-xs uppercase font-bold tracking-wider text-[#1b1c1c]">${startTag} - ${endTag}</span>
-            <span class="material-symbols-outlined text-[#916f69] transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}">expand_more</span>
+            <svg class="w-5 h-5 text-[#916f69] transition-transform duration-200 fill-current ${isOpen ? 'rotate-180' : ''}" viewBox="0 0 24 24"><path d="M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z"/></svg>
           </button>
           <div class="flex flex-col px-3 pb-3 gap-2 ${isOpen ? '' : 'hidden'}" id="${groupId}"></div>
         `;
@@ -823,23 +821,22 @@
         });
       }
 
-      // Update the footer version label dynamically
       const vLabel = document.getElementById("versionLabel");
       if (vLabel) vLabel.textContent = APP_VERSION;
     }
 
     function toggleSetupGroup(id, btn) {
       const content = document.getElementById(id);
-      const icon = btn.querySelector(".material-symbols-outlined");
+      const icon = btn.querySelector("svg");
       const isHidden = content.classList.contains("hidden");
 
       if (isHidden) {
         content.classList.remove("hidden");
-        icon.classList.add("rotate-180");
+        if (icon) icon.classList.add("rotate-180");
         setupOpenGroupIds.add(id);
       } else {
         content.classList.add("hidden");
-        icon.classList.remove("rotate-180");
+        if (icon) icon.classList.remove("rotate-180");
         setupOpenGroupIds.delete(id);
       }
     }

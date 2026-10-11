@@ -1,18 +1,10 @@
-/* 
-  ======================================================================
-  WOODY SERVICE WORKER CACHE
-  - Bump CACHE_NAME to match APP_VERSION on every build revision.
-  ======================================================================
-*/
-const CACHE_NAME = 'woody-v1.27';
+const CACHE_NAME = 'woody-v1.28';
 const ASSETS = [
   './',
   './index.html',
   './manifest.json',
   './icon512.png',
-  'https://cdn.tailwindcss.com',
-  'https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Roboto+Flex:wght@600;700&display=swap',
-  'https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1'
+  'https://cdn.tailwindcss.com'
 ];
 
 self.addEventListener('install', (event) => {
