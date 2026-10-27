@@ -1,8 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8">
-  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+    name="viewport">
   <title>Woody Devices</title>
 
   <!-- PWA & Shortcut Icon Metadata -->
@@ -16,13 +18,22 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Roboto+Flex:wght@600;700&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Roboto+Flex:wght@600;700&display=swap"
+    rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    body { font-family: 'Inter', sans-serif; overscroll-behavior: none; }
-    .font-code { font-family: 'Roboto Flex', monospace; }
+    body {
+      font-family: 'Inter', sans-serif;
+      overscroll-behavior: none;
+    }
+
+    .font-code {
+      font-family: 'Roboto Flex', monospace;
+    }
   </style>
 </head>
+
 <body class="bg-[#fbf9f9] text-[#1b1c1c] flex flex-col min-h-screen select-none relative">
 
   <!-- ==================== GLOBAL APP BAR ==================== -->
@@ -32,23 +43,32 @@
       <!-- Main Navigation Toggle (Grid / List Views) -->
       <div id="navMain" class="flex-1 flex items-center justify-center relative">
         <div class="bg-[#efeded] p-1 rounded-xl flex items-center">
-          <button type="button" id="tabList" onclick="switchView('list')" class="px-4 py-1.5 rounded-lg text-xs font-semibold text-[#5d403b] hover:text-[#1b1c1c] transition-all cursor-pointer">List</button>
-          <button type="button" id="tabGrid" onclick="switchView('grid')" class="px-4 py-1.5 rounded-lg text-xs font-bold bg-white text-[#b80000] shadow-sm transition-all cursor-pointer">Grid</button>
+          <button type="button" id="tabList" onclick="switchView('list')"
+            class="px-4 py-1.5 rounded-lg text-xs font-semibold text-[#5d403b] hover:text-[#1b1c1c] transition-all cursor-pointer">List</button>
+          <button type="button" id="tabGrid" onclick="switchView('grid')"
+            class="px-4 py-1.5 rounded-lg text-xs font-bold bg-white text-[#b80000] shadow-sm transition-all cursor-pointer">Grid</button>
         </div>
         <div class="absolute right-0 flex items-center">
-          <button type="button" onclick="switchView('setup')" class="w-10 h-10 flex items-center justify-center text-[#5d403b] hover:text-[#1b1c1c] cursor-pointer" aria-label="Settings">
-            <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+          <button type="button" onclick="switchView('setup')"
+            class="w-10 h-10 flex items-center justify-center text-[#5d403b] hover:text-[#1b1c1c] cursor-pointer"
+            aria-label="Settings">
+            <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24">
+              <path
+                d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" />
+            </svg>
           </button>
         </div>
       </div>
 
       <!-- Secondary Screen Navigation (Detail & Setup Views) -->
       <div id="navSub" class="hidden w-full flex items-center justify-between">
-        <button type="button" id="btnHeaderBack" onclick="handleHeaderBack()" class="px-4 py-2 bg-[#efeded] hover:bg-[#e3e2e2] text-[#1b1c1c] font-semibold text-sm rounded-xl transition-colors cursor-pointer">
+        <button type="button" id="btnHeaderBack" onclick="handleHeaderBack()"
+          class="px-4 py-2 bg-[#efeded] hover:bg-[#e3e2e2] text-[#1b1c1c] font-semibold text-sm rounded-xl transition-colors cursor-pointer">
           Back
         </button>
         <h1 id="subHeaderTitle" class="text-xs font-bold uppercase tracking-wider text-[#5d403b]"></h1>
-        <button type="button" id="btnHeaderSave" disabled class="px-5 py-2 bg-[#efeded] text-[#5d403b]/40 font-bold text-sm rounded-xl cursor-not-allowed transition-all">
+        <button type="button" id="btnHeaderSave" disabled
+          class="px-5 py-2 bg-[#efeded] text-[#5d403b]/40 font-bold text-sm rounded-xl cursor-not-allowed transition-all">
           Save
         </button>
       </div>
@@ -62,9 +82,12 @@
     <section id="viewGrid" class="block pb-12 px-4 max-w-md mx-auto">
       <div class="flex flex-col w-full gap-4">
         <div class="flex items-center justify-center gap-2 w-full select-none" id="telemetryBar">
-          <div class="flex-1 py-1.5 rounded-lg bg-[#fbc02d] text-[#1a1a1a] font-bold text-xs text-center shadow-sm" id="countOut">Out: 0</div>
-          <div class="flex-1 py-1.5 rounded-lg bg-[#2e7d32] text-white font-bold text-xs text-center shadow-sm" id="countOffice">Office: 0</div>
-          <div class="flex-1 py-1.5 rounded-lg bg-[#dbdad9] text-[#1b1c1c] font-bold text-xs text-center shadow-sm" id="countInactive">Inactive: 0</div>
+          <div class="flex-1 py-1.5 rounded-lg bg-[#fbc02d] text-[#1a1a1a] font-bold text-xs text-center shadow-sm"
+            id="countOut">Out: 0</div>
+          <div class="flex-1 py-1.5 rounded-lg bg-[#2e7d32] text-white font-bold text-xs text-center shadow-sm"
+            id="countOffice">Office: 0</div>
+          <div class="flex-1 py-1.5 rounded-lg bg-[#dbdad9] text-[#1b1c1c] font-bold text-xs text-center shadow-sm"
+            id="countInactive">Inactive: 0</div>
         </div>
 
         <div class="bg-[#f5f3f3] p-4 rounded-2xl shadow-sm border border-[#e9e8e7]">
@@ -78,36 +101,48 @@
       <div class="flex flex-col w-full gap-3">
         <!-- Accordion 1: Out on Job -->
         <div class="flex flex-col rounded-xl bg-[#f5f3f3] border border-[#e9e8e7] overflow-hidden">
-          <button type="button" onclick="toggleAccordion('listOutContent', 'listOutIcon')" class="w-full p-4 flex items-center justify-between text-left cursor-pointer hover:bg-[#efeded] transition-colors">
+          <button type="button" onclick="toggleAccordion('listOutContent', 'listOutIcon')"
+            class="w-full p-4 flex items-center justify-between text-left cursor-pointer hover:bg-[#efeded] transition-colors">
             <div class="flex items-center gap-2">
               <h2 class="text-xs uppercase font-bold tracking-wider text-[#5d403b]">Out on Job</h2>
               <span class="px-2 py-0.5 rounded-full bg-[#e3e2e2] text-xs font-bold" id="badgeListCountOut">0</span>
             </div>
-            <svg id="listOutIcon" class="w-5 h-5 text-[#916f69] transition-transform duration-200 fill-current" viewBox="0 0 24 24"><path d="M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z"/></svg>
+            <svg id="listOutIcon" class="w-5 h-5 text-[#916f69] transition-transform duration-200 fill-current"
+              viewBox="0 0 24 24">
+              <path d="M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z" />
+            </svg>
           </button>
           <div class="flex flex-col px-3 pb-3 gap-2 hidden" id="listOutContent"></div>
         </div>
 
         <!-- Accordion 2: In Office -->
         <div class="flex flex-col rounded-xl bg-[#f5f3f3] border border-[#e9e8e7] overflow-hidden">
-          <button type="button" onclick="toggleAccordion('listOfficeContent', 'listOfficeIcon')" class="w-full p-4 flex items-center justify-between text-left cursor-pointer hover:bg-[#efeded] transition-colors">
+          <button type="button" onclick="toggleAccordion('listOfficeContent', 'listOfficeIcon')"
+            class="w-full p-4 flex items-center justify-between text-left cursor-pointer hover:bg-[#efeded] transition-colors">
             <div class="flex items-center gap-2">
               <h2 class="text-xs uppercase font-bold tracking-wider text-[#5d403b]">In Office</h2>
               <span class="px-2 py-0.5 rounded-full bg-[#e3e2e2] text-xs font-bold" id="badgeListCountOffice">0</span>
             </div>
-            <svg id="listOfficeIcon" class="w-5 h-5 text-[#916f69] transition-transform duration-200 fill-current" viewBox="0 0 24 24"><path d="M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z"/></svg>
+            <svg id="listOfficeIcon" class="w-5 h-5 text-[#916f69] transition-transform duration-200 fill-current"
+              viewBox="0 0 24 24">
+              <path d="M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z" />
+            </svg>
           </button>
           <div class="flex flex-col px-3 pb-3 gap-2 hidden" id="listOfficeContent"></div>
         </div>
 
         <!-- Accordion 3: Inactive Devices -->
         <div class="flex flex-col rounded-xl bg-[#f5f3f3] border border-[#e9e8e7] overflow-hidden">
-          <button type="button" onclick="toggleAccordion('listInactiveContent', 'listInactiveIcon')" class="w-full p-4 flex items-center justify-between text-left cursor-pointer hover:bg-[#efeded] transition-colors">
+          <button type="button" onclick="toggleAccordion('listInactiveContent', 'listInactiveIcon')"
+            class="w-full p-4 flex items-center justify-between text-left cursor-pointer hover:bg-[#efeded] transition-colors">
             <div class="flex items-center gap-2">
               <h2 class="text-xs uppercase font-bold tracking-wider text-[#5d403b]">Inactive Devices</h2>
               <span class="px-2 py-0.5 rounded-full bg-[#e3e2e2] text-xs font-bold" id="badgeListCountInactive">0</span>
             </div>
-            <svg id="listInactiveIcon" class="w-5 h-5 text-[#916f69] transition-transform duration-200 fill-current" viewBox="0 0 24 24"><path d="M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z"/></svg>
+            <svg id="listInactiveIcon" class="w-5 h-5 text-[#916f69] transition-transform duration-200 fill-current"
+              viewBox="0 0 24 24">
+              <path d="M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z" />
+            </svg>
           </button>
           <div class="flex flex-col px-3 pb-3 gap-2 hidden" id="listInactiveContent"></div>
         </div>
@@ -118,42 +153,52 @@
     <section id="viewDetail" class="hidden pb-12 px-4 max-w-md mx-auto">
       <div class="flex flex-col w-full gap-5">
         <div class="flex flex-col items-center justify-center pt-2">
-          <div id="detailHeroBadge" class="w-24 h-24 rounded-2xl shadow-sm flex flex-col items-center justify-center transition-colors select-none">
+          <div id="detailHeroBadge"
+            class="w-24 h-24 rounded-2xl shadow-sm flex flex-col items-center justify-center transition-colors select-none">
             <span class="text-2xl font-bold leading-none" id="detailHeroLabel">--</span>
             <span class="text-xs font-semibold mt-1 opacity-80" id="detailHeroSlot">#--</span>
           </div>
 
           <div class="mt-4 w-48 bg-[#efeded] p-1 rounded-xl flex items-center justify-between">
-            <button type="button" id="btnDetailToggleOut" class="w-1/2 py-2 rounded-lg text-xs font-bold transition-all text-center">Out</button>
-            <button type="button" id="btnDetailToggleOffice" class="w-1/2 py-2 rounded-lg text-xs font-bold transition-all text-center cursor-pointer">Office</button>
+            <button type="button" id="btnDetailToggleOut"
+              class="w-1/2 py-2 rounded-lg text-xs font-bold transition-all text-center">Out</button>
+            <button type="button" id="btnDetailToggleOffice"
+              class="w-1/2 py-2 rounded-lg text-xs font-bold transition-all text-center cursor-pointer">Office</button>
           </div>
         </div>
 
         <div class="w-full bg-white rounded-2xl p-4 shadow-sm border border-[#e9e8e7] flex flex-col gap-4">
           <div class="flex flex-col gap-1">
             <label for="inputDetailCustomer" class="text-xs font-semibold text-[#5d403b]">Customer</label>
-            <input type="text" id="inputDetailCustomer" placeholder="Enter customer name" class="w-full h-11 bg-[#f5f3f3] text-sm text-[#1b1c1c] font-medium px-3 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#916f69]">
+            <input type="text" id="inputDetailCustomer" placeholder="Enter customer name"
+              class="w-full h-11 bg-[#f5f3f3] text-sm text-[#1b1c1c] font-medium px-3 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#916f69]">
           </div>
 
           <div class="flex flex-col gap-1">
             <label for="inputDetailEvent" class="text-xs font-semibold text-[#5d403b]">Event</label>
-            <input type="text" id="inputDetailEvent" placeholder="Enter event name" class="w-full h-11 bg-[#f5f3f3] text-sm text-[#1b1c1c] font-medium px-3 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#916f69]">
+            <input type="text" id="inputDetailEvent" placeholder="Enter event name"
+              class="w-full h-11 bg-[#f5f3f3] text-sm text-[#1b1c1c] font-medium px-3 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#916f69]">
           </div>
 
           <div class="grid grid-cols-2 gap-3">
             <div class="flex flex-col gap-1">
               <label for="inputDetailOutDate" class="text-xs font-semibold text-[#5d403b]">Out Date</label>
-              <input type="date" id="inputDetailOutDate" class="w-full h-11 bg-[#f5f3f3] text-sm text-[#1b1c1c] font-medium px-3 rounded-lg focus:outline-none">
+              <input type="date" id="inputDetailOutDate"
+                class="w-full h-11 bg-[#f5f3f3] text-sm text-[#1b1c1c] font-medium px-3 rounded-lg focus:outline-none">
             </div>
             <div class="flex flex-col gap-1">
               <label for="inputDetailDueDate" class="text-xs font-semibold text-[#5d403b]">Due Date</label>
-              <input type="date" id="inputDetailDueDate" class="w-full h-11 bg-[#f5f3f3] text-sm text-[#1b1c1c] font-medium px-3 rounded-lg focus:outline-none">
+              <input type="date" id="inputDetailDueDate"
+                class="w-full h-11 bg-[#f5f3f3] text-sm text-[#1b1c1c] font-medium px-3 rounded-lg focus:outline-none">
             </div>
           </div>
 
           <div class="bg-[#f5f3f3] p-3 rounded-xl flex items-start gap-2 text-[#5d403b] text-xs leading-relaxed">
             <!-- Outlined/swapped info icon (open circle, subtle red border & text) -->
-            <svg class="w-[18px] h-[18px] text-[#b80000] shrink-0 fill-current" viewBox="0 0 24 24"><path d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg>
+            <svg class="w-[18px] h-[18px] text-[#b80000] shrink-0 fill-current" viewBox="0 0 24 24">
+              <path
+                d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z" />
+            </svg>
             <div>
               <p>Tapping <strong>Office</strong> clears all fields.</p>
               <p class="mt-0.5">Typing in any field switches status to <strong>Out</strong>.</p>
@@ -175,43 +220,60 @@
 
   <!-- ==================== FLOATING ACTION BUTTONS (Z-50 OVERLAY) ==================== -->
   <aside id="setupFABs" class="fixed bottom-6 right-6 z-50 hidden flex flex-col items-center gap-3 pointer-events-auto">
-    <button type="button" id="btnTransferFab" onclick="openTransferModal()" class="w-10 h-10 bg-[#efeded] hover:bg-[#e3e2e2] text-[#1b1c1c] font-bold text-sm rounded-full flex items-center justify-center shadow-md active:scale-95 transition-transform cursor-pointer" title="Import / Export">
+    <button type="button" id="btnTransferFab" onclick="openTransferModal()"
+      class="w-10 h-10 bg-[#efeded] hover:bg-[#e3e2e2] text-[#1b1c1c] font-bold text-sm rounded-full flex items-center justify-center shadow-md active:scale-95 transition-transform cursor-pointer"
+      title="Import / Export">
       &lt;&gt;
     </button>
-    <button type="button" id="btnFabAdd" onclick="handleAddDevice()" class="w-14 h-14 bg-[#b80000] text-white rounded-2xl flex items-center justify-center shadow-lg active:scale-95 transition-transform cursor-pointer" aria-label="Add Device">
-      <svg class="w-7 h-7 fill-current" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+    <button type="button" id="btnFabAdd" onclick="handleAddDevice()"
+      class="w-14 h-14 bg-[#b80000] text-white rounded-2xl flex items-center justify-center shadow-lg active:scale-95 transition-transform cursor-pointer"
+      aria-label="Add Device">
+      <svg class="w-7 h-7 fill-current" viewBox="0 0 24 24">
+        <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
+      </svg>
     </button>
   </aside>
 
   <!-- ==================== GLOBAL MODALS ==================== -->
 
   <!-- Modal 1: Backup & Transfer -->
-  <div id="transferModal" class="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+  <div id="transferModal"
+    class="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 hidden">
     <div class="bg-white rounded-2xl p-5 w-full max-w-xs shadow-xl flex flex-col gap-4">
       <div class="flex justify-center">
         <div class="bg-[#efeded] p-1 rounded-xl flex items-center">
-          <button type="button" id="toggleModeExport" onclick="setTransferMode('export')" class="px-4 py-1.5 rounded-lg text-xs font-bold bg-white text-[#b80000] shadow-sm transition-all cursor-default">Export</button>
-          <button type="button" id="toggleModeImport" onclick="setTransferMode('import')" class="px-4 py-1.5 rounded-lg text-xs font-semibold text-[#5d403b] hover:text-[#1b1c1c] transition-all cursor-pointer">Import</button>
+          <button type="button" id="toggleModeExport" onclick="setTransferMode('export')"
+            class="px-4 py-1.5 rounded-lg text-xs font-bold bg-white text-[#b80000] shadow-sm transition-all cursor-default">Export</button>
+          <button type="button" id="toggleModeImport" onclick="setTransferMode('import')"
+            class="px-4 py-1.5 rounded-lg text-xs font-semibold text-[#5d403b] hover:text-[#1b1c1c] transition-all cursor-pointer">Import</button>
         </div>
       </div>
 
       <div id="exportSection" class="flex flex-col gap-2">
         <label class="text-[11px] font-semibold text-[#5d403b] uppercase tracking-wider">File Name</label>
-        <div class="flex items-center w-full bg-[#f5f3f3] rounded-lg border border-[#e9e8e7] overflow-hidden focus-within:ring-1 focus-within:ring-[#916f69]">
-          <input type="text" id="inputExportFilename" class="flex-1 h-11 bg-transparent text-xs text-[#1b1c1c] px-3 font-code focus:outline-none">
-          <span class="px-3 text-xs text-[#916f69] font-code bg-[#efeded] h-11 flex items-center select-none border-l border-[#e9e8e7]">.json</span>
+        <div
+          class="flex items-center w-full bg-[#f5f3f3] rounded-lg border border-[#e9e8e7] overflow-hidden focus-within:ring-1 focus-within:ring-[#916f69]">
+          <input type="text" id="inputExportFilename"
+            class="flex-1 h-11 bg-transparent text-xs text-[#1b1c1c] px-3 font-code focus:outline-none">
+          <span
+            class="px-3 text-xs text-[#916f69] font-code bg-[#efeded] h-11 flex items-center select-none border-l border-[#e9e8e7]">.json</span>
         </div>
       </div>
 
       <div id="importSection" class="flex flex-col gap-2 hidden">
         <label class="text-[11px] font-semibold text-[#5d403b] uppercase tracking-wider">Select Backup File</label>
         <input type="file" id="importFileInput" accept=".json" class="hidden">
-        <button type="button" id="btnChooseFile" onclick="document.getElementById('importFileInput').click()" class="w-full h-11 bg-[#f5f3f3] hover:bg-[#efeded] border border-[#e9e8e7] text-xs font-medium text-[#1b1c1c] px-3 rounded-lg flex items-center justify-center gap-2 cursor-pointer transition-colors">
-          <svg class="w-[18px] h-[18px] fill-current text-[#1b1c1c]" viewBox="0 0 24 24"><path d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V8h16v10z"/></svg>
+        <button type="button" id="btnChooseFile" onclick="document.getElementById('importFileInput').click()"
+          class="w-full h-11 bg-[#f5f3f3] hover:bg-[#efeded] border border-[#e9e8e7] text-xs font-medium text-[#1b1c1c] px-3 rounded-lg flex items-center justify-center gap-2 cursor-pointer transition-colors">
+          <svg class="w-[18px] h-[18px] fill-current text-[#1b1c1c]" viewBox="0 0 24 24">
+            <path
+              d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V8h16v10z" />
+          </svg>
           <span id="labelChosenFile" class="truncate">Choose .json file</span>
         </button>
         <div class="flex justify-center -mt-0.5">
-          <button type="button" onclick="downloadResetFile()" class="text-[11px] text-[#5d403b] hover:text-[#b80000] underline font-medium cursor-pointer transition-colors">
+          <button type="button" onclick="downloadResetFile()"
+            class="text-[11px] text-[#5d403b] hover:text-[#b80000] underline font-medium cursor-pointer transition-colors">
             get reset file
           </button>
         </div>
@@ -219,33 +281,43 @@
       </div>
 
       <div class="flex items-center justify-between pt-1 border-t border-[#f5f3f3]">
-        <button type="button" onclick="closeTransferModal()" class="px-3 py-2 text-xs font-semibold text-[#5d403b] cursor-pointer hover:text-[#1b1c1c]">Cancel</button>
-        <button type="button" id="btnActionTransfer" onclick="handleTransferAction()" class="px-5 py-2 bg-[#b80000] hover:bg-[#8b0000] text-white text-xs font-bold rounded-xl cursor-pointer transition-colors shadow-sm">Export</button>
+        <button type="button" onclick="closeTransferModal()"
+          class="px-3 py-2 text-xs font-semibold text-[#5d403b] cursor-pointer hover:text-[#1b1c1c]">Cancel</button>
+        <button type="button" id="btnActionTransfer" onclick="handleTransferAction()"
+          class="px-5 py-2 bg-[#b80000] hover:bg-[#8b0000] text-white text-xs font-bold rounded-xl cursor-pointer transition-colors shadow-sm">Export</button>
       </div>
     </div>
   </div>
 
   <!-- Modal 2: Swap Slot -->
-  <div id="swapModal" class="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+  <div id="swapModal"
+    class="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 hidden">
     <div class="bg-white rounded-2xl p-5 w-full max-w-xs shadow-xl flex flex-col gap-3">
       <h3 class="text-sm font-bold" id="swapModalTitle">Swap Slot with:</h3>
-      <input type="number" id="inputTargetSlot" placeholder="Target slot #" class="w-full h-11 bg-[#f5f3f3] text-sm px-3 rounded-lg focus:outline-none">
+      <input type="number" id="inputTargetSlot" placeholder="Target slot #"
+        class="w-full h-11 bg-[#f5f3f3] text-sm px-3 rounded-lg focus:outline-none">
       <div class="flex items-center justify-end gap-2 pt-2">
-        <button type="button" onclick="closeSwapModal()" class="px-3 py-1.5 text-xs font-semibold text-[#5d403b] cursor-pointer">Cancel</button>
-        <button type="button" id="btnConfirmSwap" disabled onclick="confirmSwapAction()" class="px-4 py-1.5 bg-[#efeded] text-[#5d403b]/40 text-xs font-bold rounded-lg cursor-not-allowed">Swap</button>
+        <button type="button" onclick="closeSwapModal()"
+          class="px-3 py-1.5 text-xs font-semibold text-[#5d403b] cursor-pointer">Cancel</button>
+        <button type="button" id="btnConfirmSwap" disabled onclick="confirmSwapAction()"
+          class="px-4 py-1.5 bg-[#efeded] text-[#5d403b]/40 text-xs font-bold rounded-lg cursor-not-allowed">Swap</button>
       </div>
     </div>
   </div>
 
   <!-- Modal 3: Rename Device -->
-  <div id="renameModal" class="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+  <div id="renameModal"
+    class="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 hidden">
     <div class="bg-white rounded-2xl p-5 w-full max-w-xs shadow-xl flex flex-col gap-3">
       <h3 class="text-sm font-bold" id="renameModalTitle">Rename Device:</h3>
-      <input type="text" id="inputRename" placeholder="New label (e.g. XX01)" class="w-full h-11 bg-[#f5f3f3] text-sm px-3 rounded-lg focus:outline-none font-code">
+      <input type="text" id="inputRename" placeholder="New label (e.g. XX01)"
+        class="w-full h-11 bg-[#f5f3f3] text-sm px-3 rounded-lg focus:outline-none font-code">
       <p id="renameHint" class="text-[11px] text-[#916f69] -mt-1">Only letters, numbers, and underscores.</p>
       <div class="flex items-center justify-end gap-2 pt-2">
-        <button type="button" onclick="closeRenameModal()" class="px-3 py-1.5 text-xs font-semibold text-[#5d403b] cursor-pointer">Cancel</button>
-        <button type="button" id="btnConfirmRename" disabled onclick="confirmRenameAction()" class="px-4 py-1.5 bg-[#efeded] text-[#5d403b]/40 text-xs font-bold rounded-lg cursor-not-allowed">Rename</button>
+        <button type="button" onclick="closeRenameModal()"
+          class="px-3 py-1.5 text-xs font-semibold text-[#5d403b] cursor-pointer">Cancel</button>
+        <button type="button" id="btnConfirmRename" disabled onclick="confirmRenameAction()"
+          class="px-4 py-1.5 bg-[#efeded] text-[#5d403b]/40 text-xs font-bold rounded-lg cursor-not-allowed">Rename</button>
       </div>
     </div>
   </div>
@@ -265,6 +337,7 @@
       ======================================================================
     */
     const APP_VERSION = "v1.29";
+    <!-- antigravity sync test -->
 
     function ensureEmptySlotBuffer(data) {
       if (!data) data = {};
@@ -1250,4 +1323,5 @@
     }
   </script>
 </body>
+
 </html>
